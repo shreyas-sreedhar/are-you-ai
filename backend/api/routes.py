@@ -17,7 +17,11 @@ from api.models import (
 from services.frame_analyzer import FrameAnalyzer
 from services.news_analyzer import NewsAnalyzer
 from services.agent_orchestrator import AgentOrchestrator
+from services.scam_detection_agent import ScamDetectionAgent
+from services.csv_storage import get_csv_storage
 from config.settings import settings
+from datetime import datetime
+import uuid
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +31,10 @@ router = APIRouter(prefix="/api/v1", tags=["analysis"])
 frame_analyzer = FrameAnalyzer()
 news_analyzer = NewsAnalyzer()
 agent_orchestrator = AgentOrchestrator()
+scam_detector = ScamDetectionAgent()
+
+# Initialize CSV storage
+csv_storage = get_csv_storage()
 
 
 @router.post("/analyze-frame", response_model=FrameAnalysisResponse)
@@ -71,6 +79,17 @@ async def analyze_frame(request: FrameAnalysisRequest) -> FrameAnalysisResponse:
             reasoning=result["reasoning"],
             error=result.get("error")
         )
+        
+        # Save to CSV
+        csv_storage.save_video_analysis({
+            "video_id": request.video_id or "unknown",
+            "platform": "youtube",  # Can be enhanced to detect platform
+            "video_title": request.video_title,
+            "analysis_result": result,
+            "is_likely_fake": result["is_likely_fake"],
+            "confidence_score": float(result["confidence_score"]),
+            "reasoning": result["reasoning"]
+        })
         
         return response
         
@@ -193,6 +212,76 @@ async def avatar_generate(request: AvatarGenerateRequest) -> AvatarGenerateRespo
     except Exception as e:
         logger.error("Error in avatar_generate: %s", e, exc_info=True)
         raise HTTPException(status_code=500, detail=f"Internal error: {e}")
+
+
+@router.post("/analyze-message")
+async def analyze_message(request: dict):
+    """
+    🛡️ SENIOR PROTECTION - Scam Detection for Messages
+    
+    Analyzes messages for scam indicators to protect seniors from fraud.
+    Uses Nemotron models to detect:
+    - Financial fraud attempts
+    - Impersonation scams
+    - Urgency manipulation tactics
+    - Phishing attempts
+    
+    Returns senior-friendly warnings and recommended actions.
+    """
+    try:
+        logger.info(f"🛡️ Analyzing message for scam indicators")
+        
+        message = request.get("message", "")
+        sender = request.get("sender", "Unknown")
+        platform = request.get("platform", "unknown")
+        context = request.get("context", {})
+        
+        # Add sender and platform to context
+        context["sender"] = sender
+        context["platform"] = platform
+        
+        # Analyze with scam detection agent
+        result = await scam_detector.analyze_content(
+            content=message,
+            content_type="message",
+            context=context
+        )
+        
+        logger.info(f"✅ Scam analysis complete: Risk={result['risk_level']}")
+        
+        # Save to CSV (save MEDIUM, HIGH, and CRITICAL risk messages)
+        risk_level = result.get("risk_level", "LOW")
+        if risk_level in ["MEDIUM", "HIGH", "CRITICAL"] or result.get("scam_risk_score", 0) >= 0.4:
+            # Convert any Pydantic models to dicts for JSON serialization
+            clean_result = {}
+            for key, value in result.items():
+                if hasattr(value, 'dict'):  # Pydantic model
+                    clean_result[key] = value.dict()
+                elif hasattr(value, '__dict__'):  # Other objects
+                    clean_result[key] = str(value)
+                else:
+                    clean_result[key] = value
+            
+            csv_storage.save_message_analysis({
+                "message_text": message,
+                "sender": sender,
+                "platform": platform,
+                "analysis_result": clean_result,
+                "scam_risk_score": float(result["scam_risk_score"]),
+                "risk_level": result["risk_level"],
+                "detected_scam_types": result.get("detected_scam_types", []),
+                "reasoning": result.get("reasoning", "")
+            })
+            logger.info(f"💾 Saved message to CSV: {sender} - Risk: {risk_level}")
+        
+        return result
+        
+    except Exception as e:
+        logger.error(f"Error in message analysis: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Message analysis failed: {str(e)}"
+        )
 
 
 @router.post("/analyze-with-agents")

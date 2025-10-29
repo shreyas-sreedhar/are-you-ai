@@ -4,22 +4,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Video Fakeness Detector - Settings</title>
+  <title>TrustGuard AI - Content Verification</title>
   <link rel="stylesheet" href="popup.css">
 </head>
 
 <body>
   <div class="popup-container">
     <div class="popup-header">
-      <h1>🔍 AI Video Detector</h1>
-      <p class="subtitle">Detect AI-generated fake videos</p>
+      <h1>🛡️ TrustGuard AI</h1>
+      <p class="subtitle">AI-Powered Content Verification</p>
     </div>
 
     <div class="popup-content">
       <div class="settings-section">
-        <label for="backend-url">Backend API URL:</label>
-        <input type="text" id="backend-url" placeholder="http://localhost:8000" value="" />
-        <button id="save-btn" class="primary-btn">Save Settings</button>
+        <label for="backend-url" style="font-size: 14px; font-weight: 600;">Backend API URL:</label>
+        <input type="text" id="backend-url" placeholder="http://localhost:8000" value=""
+          style="font-size: 14px; padding: 10px;" />
+        <button id="save-btn" class="primary-btn" style="font-size: 15px; padding: 12px;">
+          Save Settings
+        </button>
       </div>
 
       <div class="status-section">
@@ -29,25 +32,53 @@
         </div>
       </div>
 
+      <!-- Dashboard Button -->
+      <div class="dashboard-section">
+        <button id="open-dashboard-btn" class="dashboard-btn">
+          📊 View Protection Dashboard
+        </button>
+      </div>
+
       <div class="info-section">
-        <h3>How to Use</h3>
-        <ol>
-          <li>Configure your backend API URL above</li>
-          <li>Navigate to a YouTube video or Facebook Reel</li>
-          <li>Click "Start" button on the video page</li>
-          <li>Results will appear in a badge (click "Details" to see more)</li>
+        <h3>🤖 Multi-Agent AI System</h3>
+        <ol style="font-size: 14px; line-height: 1.8;">
+          <li><strong>Real-Time Analysis:</strong> 6 specialized AI agents working together</li>
+          <li><strong>Deepfake Detection:</strong> Vision AI analyzes video frames</li>
+          <li><strong>Scam Protection:</strong> Detects financial fraud attempts</li>
+          <li><strong>Content Safety:</strong> Identifies misinformation</li>
         </ol>
 
-        <h4 style="margin-top: 16px; margin-bottom: 8px; font-size: 14px;">Supported Platforms</h4>
-        <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: #666;">
-          <li>YouTube Videos & Shorts</li>
-          <li>Facebook Reels & Videos</li>
+        <h4 style="margin-top: 16px; margin-bottom: 8px; font-size: 15px; color: #667eea;">
+          🎯 What We Detect:
+        </h4>
+        <ul style="font-size: 13px; line-height: 1.8; color: #666;">
+          <li>AI-generated deepfake videos</li>
+          <li>Financial scams & phishing</li>
+          <li>Manipulated content</li>
+          <li>Misinformation campaigns</li>
+          <li>Social engineering attempts</li>
         </ul>
-      </div>
-    </div>
 
-    <div class="popup-footer">
-      <a href="https://github.com/your-repo" target="_blank">Documentation</a>
+        <div
+          style="margin-top: 16px; padding: 12px; background: #e3f2fd; border-radius: 8px; border-left: 3px solid #2196f3;">
+          <strong style="color: #1565c0;">Powered by NVIDIA Nemotron</strong>
+          <p style="font-size: 12px; margin: 4px 0 0 0; color: #555;">
+            Using 4 specialized AI models for comprehensive analysis
+          </p>
+        </div>
+      </div>
+
+      <div class="help-section">
+        <h4 style="font-size: 14px; margin-bottom: 8px;">Need Help?</h4>
+        <button
+          onclick="window.open('https://www.consumer.ftc.gov/articles/how-recognize-and-avoid-phishing-scams', '_blank')"
+          class="help-btn">
+          📚 Learn About Scams
+        </button>
+        <button onclick="window.open('https://www.ftc.gov/complaint', '_blank')" class="help-btn">
+          🚫 Report a Scam
+        </button>
+      </div>
     </div>
   </div>
 

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Senior Protection Dashboard</title>
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="header-content">
+                <div class="header-left">
+                    <h1>🛡️ Senior Protection Dashboard</h1>
+                    <p class="subtitle">Keeping you safe from online scams</p>
+                </div>
+                <div class="header-right">
+                    <button id="refresh-btn" class="btn btn-secondary">
+                        <span id="refresh-icon">🔄</span> Refresh
+                    </button>
+                    <button id="settings-btn" class="btn btn-primary">⚙️ Settings</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card stat-protected">
+                <div class="stat-icon">✅</div>
+                <div class="stat-content">
+                    <div class="stat-value" id="videos-protected">0</div>
+                    <div class="stat-label">Videos Protected</div>
+                </div>
+            </div>
+
+            <div class="stat-card stat-scams">
+                <div class="stat-icon">🚨</div>
+                <div class="stat-content">
+                    <div class="stat-value" id="scams-detected">0</div>
+                    <div class="stat-label">Scams Detected</div>
+                </div>
+            </div>
+
+            <div class="stat-card stat-messages">
+                <div class="stat-icon">💬</div>
+                <div class="stat-content">
+                    <div class="stat-value" id="messages-analyzed">0</div>
+                    <div class="stat-label">Messages Analyzed</div>
+                </div>
+            </div>
+
+            <div class="stat-card stat-alerts">
+                <div class="stat-icon">⚠️</div>
+                <div class="stat-content">
+                    <div class="stat-value" id="active-alerts">0</div>
+                    <div class="stat-label">Active Alerts</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Protection Status -->
+        <div class="section">
+            <h2 class="section-title">Protection Status</h2>
+            <div class="status-card">
+                <div class="status-indicator status-active">
+                    <span class="status-dot"></span>
+                    <span class="status-text">Active Protection</span>
+                </div>
+                <div class="status-details">
+                    <div class="status-item">
+                        <span class="status-label">Video Protection:</span>
+                        <span class="status-value enabled" id="video-status">Enabled</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Message Monitoring:</span>
+                        <span class="status-value enabled" id="message-status">Enabled</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">AI Analysis:</span>
+                        <span class="status-value enabled" id="ai-status">Connected</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Last Scan:</span>
+                        <span class="status-value" id="last-scan">Just now</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Alerts -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">Recent Alerts</h2>
+                <button id="clear-alerts-btn" class="btn btn-text">Clear All</button>
+            </div>
+            <div id="alerts-container" class="alerts-container">
+                <!-- Alerts will be dynamically inserted here -->
+                <div class="empty-state">
+                    <div class="empty-icon">✨</div>
+                    <div class="empty-text">No alerts yet - you're protected!</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Tips -->
+        <div class="section">
+            <h2 class="section-title">🎓 Safety Tips for Seniors</h2>
+            <div class="tips-grid">
+                <div class="tip-card">
+                    <div class="tip-icon">🚫</div>
+                    <div class="tip-title">Never Send Gift Cards</div>
+                    <div class="tip-text">Legitimate organizations never ask for payment in gift cards</div>
+                </div>
+                <div class="tip-card">
+                    <div class="tip-icon">📞</div>
+                    <div class="tip-title">Verify Independently</div>
+                    <div class="tip-text">Always call official numbers you look up yourself - not numbers they provide
+                    </div>
+                </div>
+                <div class="tip-card">
+                    <div class="tip-icon">⏰</div>
+                    <div class="tip-title">Take Your Time</div>
+                    <div class="tip-text">Scammers use urgency to pressure you. Legitimate issues can wait</div>
+                </div>
+                <div class="tip-card">
+                    <div class="tip-icon">👨‍👩‍👧‍👦</div>
+                    <div class="tip-title">Ask Family</div>
+                    <div class="tip-text">When unsure, show the message to a family member or trusted friend</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Emergency Help -->
+        <div class="section">
+            <div class="help-card">
+                <h3>🆘 Need Help or Been Scammed?</h3>
+                <p>If you think you've been scammed or need assistance:</p>
+                <div class="help-buttons">
+                    <button onclick="window.open('https://www.ftc.gov/complaint', '_blank')" class="btn btn-help">
+                        Report to FTC
+                    </button>
+                    <button onclick="window.open('tel:1-877-382-4357')" class="btn btn-help">
+                        Call FTC: 1-877-FTC-HELP
+                    </button>
+                    <button onclick="window.open('https://www.usa.gov/stop-scams-frauds', '_blank')"
+                        class="btn btn-help">
+                        Get Help Now
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="dashboard.js"></script>
+</body>
+
+</html>

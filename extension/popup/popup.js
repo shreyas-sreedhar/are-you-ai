@@ -8,7 +8,7 @@ const DEFAULT_BACKEND_URL = "http://localhost:8000";
 document.addEventListener("DOMContentLoaded", async () => {
   await loadSettings();
   await checkConnection();
-  
+
   // Attach event listeners
   document.getElementById("save-btn").addEventListener("click", saveSettings);
   document.getElementById("backend-url").addEventListener("input", debounce(checkConnection, 500));
@@ -32,7 +32,7 @@ async function loadSettings() {
  */
 async function saveSettings() {
   const url = document.getElementById("backend-url").value.trim();
-  
+
   if (!url) {
     showStatus("error", "URL cannot be empty");
     return;
@@ -41,7 +41,7 @@ async function saveSettings() {
   try {
     // Validate URL format
     new URL(url);
-    
+
     await new Promise((resolve) => {
       chrome.runtime.sendMessage(
         { action: "saveBackendUrl", url },
@@ -61,13 +61,18 @@ async function saveSettings() {
     showStatus("error", "Invalid URL format");
   }
 }
-
+// Open dashboard button
+document.getElementById("open-dashboard-btn").addEventListener("click", () => {
+  chrome.tabs.create({
+    url: chrome.runtime.getURL("dashboard/dashboard.html")
+  });
+});
 /**
  * Check backend connection health
  */
 async function checkConnection() {
   const url = document.getElementById("backend-url").value.trim() || DEFAULT_BACKEND_URL;
-  
+
   if (!url) {
     showStatus("unknown", "Enter a backend URL");
     return;
@@ -76,11 +81,11 @@ async function checkConnection() {
   try {
     // Validate URL format
     new URL(url);
-    
+
     showStatus("checking", "Checking connection...");
-    
+
     const response = await fetch(`${url}/api/v1/health`);
-    
+
     if (response.ok) {
       const data = await response.json();
       if (data.status === "healthy") {
@@ -108,16 +113,16 @@ function showStatus(type, message) {
   const indicator = document.getElementById("status-indicator");
   const dot = indicator.querySelector(".status-dot");
   const text = indicator.querySelector(".status-text");
-  
+
   // Remove all status classes
   indicator.className = "status-indicator";
-  
+
   // Add current status class
   indicator.classList.add(`status-${type}`);
-  
+
   // Update text
   text.textContent = message;
-  
+
   // Update dot appearance
   dot.className = "status-dot";
   dot.classList.add(`status-dot-${type}`);

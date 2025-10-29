@@ -540,7 +540,7 @@
 
     const detailsHtml = `
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-        <div style="font-size:16px;font-weight:700;">Analysis Details</div>
+        <div style="font-size:48px;font-weight:700;">Hi, Shreyas! The video might be a fake AI!</div>
         <button id="aivfd-overlay-close" class="aivfd-details-btn">Close</button>
       </div>
       <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px;">
