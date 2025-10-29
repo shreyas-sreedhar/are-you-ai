@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Video Fakeness Detector - Settings</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <div class="popup-header">
+      <h1>🔍 AI Video Detector</h1>
+      <p class="subtitle">Detect AI-generated fake videos</p>
+    </div>
+
+    <div class="popup-content">
+      <div class="settings-section">
+        <label for="backend-url">Backend API URL:</label>
+        <input 
+          type="text" 
+          id="backend-url" 
+          placeholder="http://localhost:8000"
+          value=""
+        />
+        <button id="save-btn" class="primary-btn">Save Settings</button>
+      </div>
+
+      <div class="status-section">
+        <div id="status-indicator" class="status-indicator">
+          <span class="status-dot"></span>
+          <span class="status-text">Checking connection...</span>
+        </div>
+      </div>
+
+      <div class="info-section">
+        <h3>How to Use</h3>
+        <ol>
+          <li>Configure your backend API URL above</li>
+          <li>Navigate to a YouTube video</li>
+          <li>Click "Analyze Video" button on the video page</li>
+          <li>Results will appear below the video player</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="popup-footer">
+      <a href="https://github.com/your-repo" target="_blank">Documentation</a>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
+

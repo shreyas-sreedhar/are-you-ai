@@ -1,0 +1,17 @@
+# Node
+node_modules/
+web/node_modules/
+web/.next/
+web/.turbo/
+web/.vercel/
+web/.DS_Store
+web/.env.local
+
+# Python
+backend/__pycache__/
+backend/.pytest_cache/
+backend/.DS_Store
+backend/.env
+
+# OS
+.DS_Store
