@@ -1,5 +1,5 @@
 /**
- * Content script for YouTube video page
+ * Content script for YouTube and Facebook video pages
  * Handles frame extraction and UI injection
  */
 
@@ -11,9 +11,17 @@
   let extractionInterval = null;
   let currentAnalysisState = null;
   let backendUrl = "http://localhost:8000";
+  let platform = "unknown"; // "youtube" or "facebook"
+
+  // Detect platform
+  if (window.location.hostname.includes("youtube.com")) {
+    platform = "youtube";
+  } else if (window.location.hostname.includes("facebook.com")) {
+    platform = "facebook";
+  }
 
   // Initialize extension
-  console.log("[AIVFD] Starting initialization...");
+  console.log(`[AIVFD] Starting initialization on ${platform}...`);
   init().catch(error => {
     console.error("[AIVFD] Initialization error:", error);
     // Try to inject UI anyway after a delay
@@ -29,25 +37,25 @@
   });
 
   /**
-   * Initialize the extension on YouTube page
+   * Initialize the extension on video page
    */
   async function init() {
     try {
       // Get backend URL from storage
       backendUrl = await getBackendUrl();
 
-      // Wait for YouTube player to be available (but don't fail if it takes too long)
+      // Wait for video player to be available (but don't fail if it takes too long)
       try {
         await waitForPlayer();
       } catch (e) {
         console.warn("Player not ready yet, will inject UI anyway:", e);
       }
 
-      // Inject UI into YouTube page
+      // Inject UI into video page
       console.log("[AIVFD] Injecting UI...");
       injectUI();
 
-      console.log("[AIVFD] AI Video Fakeness Detector initialized successfully");
+      console.log(`[AIVFD] AI Video Fakeness Detector initialized successfully on ${platform}`);
     } catch (error) {
       console.error("Error in init:", error);
       throw error;
@@ -66,7 +74,7 @@
   }
 
   /**
-   * Wait for YouTube video player to be available
+   * Wait for video player to be available
    */
   async function waitForPlayer() {
     const maxAttempts = 100; // Increased attempts
@@ -75,6 +83,7 @@
     while (attempts < maxAttempts) {
       const video = document.querySelector("video");
       if (video) {
+        console.log(`[AIVFD] Video element found on ${platform}`);
         // Don't require readyState, just check if video element exists
         return video;
       }
@@ -85,7 +94,7 @@
   }
 
   /**
-   * Inject UI controls into YouTube page
+   * Inject UI controls into video page
    */
   function injectUI() {
     // Check if UI already exists
@@ -111,9 +120,13 @@
     // Try multiple strategies to insert the UI
     let inserted = false;
     const isShorts = window.location.pathname.includes('/shorts/');
-    
-    // Strategy 1: For Shorts, ALWAYS use fixed positioning for visibility
-    if (isShorts) {
+    const isFacebookReel = platform === "facebook" && (
+      window.location.pathname.includes('/reel/') ||
+      window.location.pathname.includes('/videos/')
+    );
+
+    // Strategy 1: For Shorts and Facebook Reels, ALWAYS use fixed positioning for visibility
+    if (isShorts || isFacebookReel) {
       // For Shorts, position container without a box background
       container.style.cssText = `
         position: fixed !important;
@@ -128,11 +141,11 @@
       `;
       document.body.appendChild(container);
       inserted = true;
-      console.log("[AIVFD] UI inserted with fixed positioning for Shorts page");
+      console.log(`[AIVFD] UI inserted with fixed positioning for ${platform} ${isShorts ? 'Shorts' : 'Reels'} page`);
     }
-    
-    // Strategy 2: Try to insert after YouTube player container (regular videos)
-    if (!inserted) {
+
+    // Strategy 2: Try to insert after player container (regular videos - YouTube or Facebook)
+    if (!inserted && platform === "youtube") {
       const playerContainer = document.querySelector("#movie_player") || document.querySelector("#player");
       if (playerContainer && playerContainer.parentElement) {
         try {
@@ -144,7 +157,7 @@
         }
       }
     }
-    
+
     // Strategy 3: Try to insert after video element
     if (!inserted) {
       const video = document.querySelector("video");
@@ -158,7 +171,7 @@
         }
       }
     }
-    
+
     // Strategy 4: Try to find secondary-guide-inner container (common YouTube structure)
     if (!inserted) {
       const secondaryInner = document.querySelector("#secondary-inner");
@@ -172,7 +185,7 @@
         }
       }
     }
-    
+
     // Strategy 5: Try to find #secondary (YouTube sidebar area)
     if (!inserted) {
       const secondary = document.querySelector("#secondary");
@@ -186,8 +199,33 @@
         }
       }
     }
-    
-    // Strategy 6: Fallback - append to body (fixed position will make it visible)
+
+    // Strategy 6: For Facebook regular videos, try to find video container
+    if (!inserted && platform === "facebook") {
+      // Facebook video containers - try multiple selectors
+      const fbSelectors = [
+        '[role="main"]',
+        '[data-pagelet="WatchPermalinkVideo"]',
+        '[data-pagelet="MediaViewerPhoto"]',
+        '.x1ja2u2z', // Common Facebook container class
+      ];
+
+      for (const selector of fbSelectors) {
+        const fbContainer = document.querySelector(selector);
+        if (fbContainer) {
+          try {
+            fbContainer.insertBefore(container, fbContainer.firstChild);
+            inserted = true;
+            console.log(`[AIVFD] UI inserted in Facebook container: ${selector}`);
+            break;
+          } catch (e) {
+            console.warn(`Failed to insert in ${selector}:`, e);
+          }
+        }
+      }
+    }
+
+    // Strategy 7: Fallback - append to body (fixed position will make it visible)
     if (!inserted) {
       // Ensure visibility without any white box background
       container.style.cssText = `
@@ -202,20 +240,20 @@
         min-width: unset !important;
       `;
       document.body.appendChild(container);
-      console.log("[AIVFD] UI appended to body with fixed positioning (fallback) - should be visible top-right");
+      console.log(`[AIVFD] UI appended to body with fixed positioning (fallback on ${platform}) - should be visible top-right`);
     }
-    
+
     // Verify button was created and is visible
     const button = document.getElementById("aivfd-analyze-btn");
     if (button) {
       console.log("[AIVFD] ✅ Analyze button found and ready!");
-      
+
       // Check if button is actually visible
       const rect = button.getBoundingClientRect();
-      const isVisible = rect.width > 0 && rect.height > 0 && 
-                       window.getComputedStyle(button).display !== 'none' &&
-                       window.getComputedStyle(button).visibility !== 'hidden';
-      
+      const isVisible = rect.width > 0 && rect.height > 0 &&
+        window.getComputedStyle(button).display !== 'none' &&
+        window.getComputedStyle(button).visibility !== 'hidden';
+
       if (!isVisible) {
         console.warn("[AIVFD] ⚠️ Button exists but may not be visible!", {
           width: rect.width,
@@ -223,7 +261,7 @@
           display: window.getComputedStyle(button).display,
           visibility: window.getComputedStyle(button).visibility
         });
-        
+
         // Force visibility
         button.style.display = "inline-flex";
         button.style.visibility = "visible";
@@ -244,7 +282,7 @@
     try {
       const analyzeBtn = document.getElementById("aivfd-analyze-btn");
       const stopBtn = document.getElementById("aivfd-stop-btn");
-      
+
       if (analyzeBtn) {
         // Add multiple event listeners to ensure it works
         analyzeBtn.addEventListener("click", (e) => {
@@ -253,17 +291,17 @@
           e.stopPropagation();
           startAnalysis();
         }, true); // Use capture phase
-        
+
         // Also add mousedown as backup
         analyzeBtn.addEventListener("mousedown", (e) => {
           console.log("[AIVFD] Analyze button mousedown event");
         });
-        
+
         console.log("[AIVFD] Analyze button event listeners attached");
       } else {
         console.error("[AIVFD] Analyze button not found!");
       }
-      
+
       if (stopBtn) {
         stopBtn.addEventListener("click", stopAnalysis);
         console.log("Stop button event listener attached");
@@ -393,7 +431,7 @@
    */
   async function analyzeFrame(base64Frame, timestamp) {
     const videoData = getVideoMetadata();
-    
+
     const response = await fetch(`${backendUrl}/api/v1/analyze-frame`, {
       method: "POST",
       headers: {
@@ -587,13 +625,47 @@
   }
 
   /**
-   * Get video metadata from YouTube page
+   * Get video metadata from current page
    */
   function getVideoMetadata() {
-    const videoId = new URLSearchParams(window.location.search).get("v");
-    const titleElement = document.querySelector('h1.ytd-watch-metadata yt-formatted-string, h1.title yt-formatted-string');
-    const title = titleElement ? titleElement.textContent.trim() : "Unknown Video";
+    let videoId = "unknown";
+    let title = "Unknown Video";
 
+    if (platform === "youtube") {
+      videoId = new URLSearchParams(window.location.search).get("v") ||
+        window.location.pathname.split('/').pop() || // For shorts
+        "unknown";
+      const titleElement = document.querySelector('h1.ytd-watch-metadata yt-formatted-string, h1.title yt-formatted-string');
+      title = titleElement ? titleElement.textContent.trim() : "Unknown Video";
+    } else if (platform === "facebook") {
+      // Extract video ID from Facebook URL
+      // URLs can be like: /reel/123456789 or /username/videos/123456789
+      const pathParts = window.location.pathname.split('/').filter(p => p);
+      videoId = pathParts[pathParts.length - 1] || "unknown";
+
+      // Try multiple selectors for Facebook video title
+      const titleSelectors = [
+        '[data-ad-comet-preview="message"]',
+        'h2[dir="auto"]',
+        '[role="main"] h2',
+        '.x1heor9g', // Common Facebook text class
+      ];
+
+      for (const selector of titleSelectors) {
+        const titleElement = document.querySelector(selector);
+        if (titleElement && titleElement.textContent.trim()) {
+          title = titleElement.textContent.trim();
+          break;
+        }
+      }
+
+      // Fallback to document title if no title found
+      if (title === "Unknown Video" && document.title) {
+        title = document.title.split('|')[0].trim();
+      }
+    }
+
+    console.log(`[AIVFD] Video metadata: ${platform} - ID: ${videoId}, Title: ${title}`);
     return {
       videoId,
       title,
@@ -628,16 +700,17 @@
     showResults(`<div class="aivfd-error">${message}</div>`);
   }
 
-  // Listen for YouTube navigation (SPA)
+  // Listen for navigation (SPA - works for both YouTube and Facebook)
   let lastUrl = location.href;
   new MutationObserver(() => {
     const url = location.href;
     if (url !== lastUrl) {
       lastUrl = url;
+      console.log(`[AIVFD] URL changed on ${platform}, re-initializing...`);
       // Reset UI and re-initialize on navigation
       try {
         stopAnalysis();
-      } catch {}
+      } catch { }
       clearBadgeAndOverlay();
       setTimeout(init, 1000);
     }

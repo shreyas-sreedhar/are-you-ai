@@ -16,15 +16,17 @@ from api.models import (
 )
 from services.frame_analyzer import FrameAnalyzer
 from services.news_analyzer import NewsAnalyzer
+from services.agent_orchestrator import AgentOrchestrator
 from config.settings import settings
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/v1", tags=["analysis"])
 
-# Initialize frame analyzer (singleton instance)
+# Initialize analyzers (singleton instances)
 frame_analyzer = FrameAnalyzer()
 news_analyzer = NewsAnalyzer()
+agent_orchestrator = AgentOrchestrator()
 
 
 @router.post("/analyze-frame", response_model=FrameAnalysisResponse)
@@ -191,4 +193,74 @@ async def avatar_generate(request: AvatarGenerateRequest) -> AvatarGenerateRespo
     except Exception as e:
         logger.error("Error in avatar_generate: %s", e, exc_info=True)
         raise HTTPException(status_code=500, detail=f"Internal error: {e}")
+
+
+@router.post("/analyze-with-agents")
+async def analyze_with_agents(request: BatchAnalysisRequest):
+    """
+    🤖 MULTI-AGENT ANALYSIS - Prize Track Feature!
+    
+    Uses multiple specialized Nemotron agents working together:
+    1. Vision Agent (Nemotron-Nano-12B-v2-VL) - Analyzes frames
+    2. Temporal Agent (Nemotron-nano-9b-v2) - Checks consistency
+    3. Research Agent (Nemotron-nano-9b-v2) - Searches patterns
+    4. Fact-Checker Agent (Nemotron-nano-9b-v2) - Verifies claims
+    5. Safety Guard (Nemotron-Safety-Guard-8B-v3) - Checks safety
+    6. Orchestrator (Nemotron-super-49b-v1.5) - Final decision
+    
+    Demonstrates:
+    - ✅ Autonomous reasoning and multi-step problem-solving
+    - ✅ Multi-agent orchestration
+    - ✅ Tool integration (web search, fact-checking)
+    - ✅ ReAct pattern (Reason → Act → Observe)
+    """
+    try:
+        logger.info(f"🤖 Multi-agent analysis starting with {len(request.frames)} frames")
+        
+        # Convert request models to dictionaries for agent orchestrator
+        frames_data = [
+            {
+                "frame": frame.frame,
+                "video_id": frame.video_id,
+                "timestamp": frame.timestamp,
+                "video_title": frame.video_title
+            }
+            for frame in request.frames
+        ]
+        
+        video_metadata = {
+            "video_id": request.frames[0].video_id if request.frames else "unknown",
+            "title": request.frames[0].video_title if request.frames else "Unknown Video",
+            "platform": "youtube",  # Can be extracted from request
+            "frame_count": len(request.frames)
+        }
+        
+        # Run multi-agent analysis
+        result = await agent_orchestrator.analyze_video_with_agents(
+            frames=frames_data,
+            video_metadata=video_metadata
+        )
+        
+        logger.info(f"✅ Multi-agent analysis complete: {result['is_likely_fake']}")
+        
+        return {
+            "success": True,
+            "analysis_type": "multi_agent",
+            "result": result,
+            "agent_workflow": result.get("workflow_visualization"),
+            "reasoning_chain": result.get("agent_chain"),
+            "models_used": [
+                "nvidia/nemotron-nano-12b-v2-vl",
+                "nvidia/nemotron-nano-9b-v2",
+                "nvidia/nemotron-safety-guard-8b-v3",
+                "nvidia/nemotron-super-49b-v1.5"
+            ]
+        }
+        
+    except Exception as e:
+        logger.error(f"Error in multi-agent analysis: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Multi-agent analysis failed: {str(e)}"
+        )
 

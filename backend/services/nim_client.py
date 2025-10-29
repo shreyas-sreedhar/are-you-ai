@@ -12,7 +12,15 @@ logger = logging.getLogger(__name__)
 
 
 class NIMClient:
-    """Client for interacting with NVIDIA NIM API."""
+    """Client for interacting with NVIDIA NIM API with multi-model support."""
+    
+    # Nemotron model configurations
+    MODELS = {
+        "vision": "nvidia/nemotron-nano-12b-v2-vl",  # Vision-language model
+        "nano": "nvidia/nemotron-nano-9b-v2",  # Fast reasoning model
+        "super": "nvidia/nemotron-super-49b-v1.5",  # Advanced reasoning
+        "safety": "nvidia/nemotron-safety-guard-8b-v3"  # Safety checking
+    }
     
     def __init__(self):
         self.api_key = settings.nim_api_key
@@ -206,6 +214,82 @@ CRITICAL INSTRUCTIONS:
             logger.error(f"Unexpected error calling NIM API: {e}")
             raise
 
+    async def generate_text(
+        self,
+        prompt: str,
+        max_tokens: int = 1024,
+        temperature: float = 0.5,
+        model: Optional[str] = None,
+        use_super_model: bool = False
+    ) -> str:
+        """
+        Generate text using Nemotron models for agent reasoning.
+        
+        Args:
+            prompt: The prompt to generate from
+            max_tokens: Maximum tokens to generate
+            temperature: Sampling temperature (0.0-1.0)
+            model: Specific model to use (defaults to nano)
+            use_super_model: If True, uses the largest Nemotron model
+            
+        Returns:
+            Generated text response
+        """
+        # Select model
+        if use_super_model:
+            selected_model = self.MODELS["super"]
+        elif model:
+            selected_model = model
+        else:
+            selected_model = self.MODELS["nano"]
+        
+        payload = {
+            "model": selected_model,
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [{"type": "text", "text": prompt}]
+                }
+            ],
+            "temperature": temperature,
+            "max_tokens": max_tokens
+        }
+        
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json"
+        }
+        
+        try:
+            logger.info(f"Generating text with model: {selected_model}")
+            
+            async with httpx.AsyncClient(timeout=self.timeout) as client:
+                response = await client.post(
+                    self.api_endpoint,
+                    json=payload,
+                    headers=headers
+                )
+                response.raise_for_status()
+                
+                result = response.json()
+                
+                if "choices" not in result or len(result["choices"]) == 0:
+                    raise ValueError("Invalid API response: no choices found")
+                
+                content = result["choices"][0]["message"]["content"]
+                
+                return content
+                
+        except httpx.HTTPStatusError as e:
+            logger.error(f"HTTP error from NIM API: {e.response.status_code} - {e.response.text}")
+            raise
+        except httpx.TimeoutException:
+            logger.error("NIM API request timed out")
+            raise
+        except Exception as e:
+            logger.error(f"Unexpected error calling NIM API: {e}")
+            raise
+    
     async def analyze_text(self, text: str, title: Optional[str] = None) -> Dict[str, Any]:
         """Analyze text/article for misinformation using a reasoning model.
         Returns raw response content and full response."""

@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AI Video Fakeness Detector - Settings</title>
   <link rel="stylesheet" href="popup.css">
 </head>
+
 <body>
   <div class="popup-container">
     <div class="popup-header">
@@ -16,12 +18,7 @@
     <div class="popup-content">
       <div class="settings-section">
         <label for="backend-url">Backend API URL:</label>
-        <input 
-          type="text" 
-          id="backend-url" 
-          placeholder="http://localhost:8000"
-          value=""
-        />
+        <input type="text" id="backend-url" placeholder="http://localhost:8000" value="" />
         <button id="save-btn" class="primary-btn">Save Settings</button>
       </div>
 
@@ -36,10 +33,16 @@
         <h3>How to Use</h3>
         <ol>
           <li>Configure your backend API URL above</li>
-          <li>Navigate to a YouTube video</li>
-          <li>Click "Analyze Video" button on the video page</li>
-          <li>Results will appear below the video player</li>
+          <li>Navigate to a YouTube video or Facebook Reel</li>
+          <li>Click "Start" button on the video page</li>
+          <li>Results will appear in a badge (click "Details" to see more)</li>
         </ol>
+
+        <h4 style="margin-top: 16px; margin-bottom: 8px; font-size: 14px;">Supported Platforms</h4>
+        <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: #666;">
+          <li>YouTube Videos & Shorts</li>
+          <li>Facebook Reels & Videos</li>
+        </ul>
       </div>
     </div>
 
@@ -50,5 +53,5 @@
 
   <script src="popup.js"></script>
 </body>
-</html>
 
+</html>
