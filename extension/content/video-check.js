@@ -26,6 +26,9 @@
   let label = null;
   let pill = null;
   let checking = false;
+  // Bumped whenever a check is abandoned, so a late reply from a cancelled
+  // run cannot pop a sheet the user has already dismissed.
+  let runId = 0;
 
   // --- Setup ------------------------------------------------------------
 
@@ -80,6 +83,7 @@
   }
 
   function teardown() {
+    runId += 1;
     RUAI.view.closeSheet();
     document.getElementById(LAUNCHER_ID)?.remove();
     launcher = null;
@@ -188,6 +192,10 @@
     }
 
     checking = true;
+    runId += 1;
+    const thisRun = runId;
+    const abandoned = () => thisRun !== runId;
+
     setState("working", "Checking…");
 
     RUAI.view.showSheet(
@@ -195,7 +203,19 @@
         "Looking at this video",
         "This usually takes a few seconds."
       ),
-      { actions: [{ label: "Cancel", primary: false }] }
+      {
+        actions: [
+          {
+            label: "Cancel",
+            primary: false,
+            // The request cannot be recalled, but its answer can be ignored.
+            onClick: () => {
+              runId += 1;
+              setState("idle", "Is this video real?");
+            },
+          },
+        ],
+      }
     );
 
     try {
@@ -210,10 +230,15 @@
         platform,
       });
 
+      if (abandoned()) return;
+
       showResultPill(verdict.risk);
       setState("idle", "Check again");
       present(verdict);
     } catch (error) {
+      console.warn("[RUAI] video check failed:", error);
+      if (abandoned()) return;
+
       const message =
         error?.name === "SecurityError"
           ? "This site does not let RUAI read the video picture."
@@ -221,7 +246,6 @@
 
       setState("idle", "Try again");
       RUAI.view.showSheet(RUAI.view.messageCard("RUAI could not check this", message));
-      console.warn("[RUAI] video check failed:", error);
     } finally {
       checking = false;
     }

@@ -19,8 +19,18 @@
 
   const MESSAGE_SELECTORS = ['[role="row"]', '[data-scope="messages_table"]'];
 
+  // Messenger tabs stay open for days, so this cannot grow without limit.
+  const MAX_REMEMBERED = 500;
   const seen = new Set();
   let recentChecks = [];
+
+  function remember(key) {
+    seen.add(key);
+    if (seen.size > MAX_REMEMBERED) {
+      // Sets keep insertion order, so this drops the oldest fingerprint.
+      seen.delete(seen.values().next().value);
+    }
+  }
 
   const platform = location.hostname.includes("instagram.com") ? "instagram" : "facebook";
 
@@ -176,7 +186,7 @@
       return;
     }
 
-    seen.add(key);
+    remember(key);
     node.dataset.ruaiChecked = "true";
 
     if (!withinRateLimit()) return;
