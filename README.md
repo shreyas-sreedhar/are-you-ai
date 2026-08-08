@@ -14,12 +14,14 @@
 
 ## Why this exists
 
-My mother is on Facebook. So is yours, probably, and an aunt, and a
-grandfather. And the people targeting them have got very good at it.
+My grandmother is on Social Media. So is yours, probably, and an aunt, and a
+grandfather. And the people targeting them to scam them have got very good at it.
 
-A profile appears using a cousin's photo and name, saying she's stranded
+A fake profile appears using a relative's photo and name, saying she's stranded
 abroad and could you send $400 in gift cards, and please don't tell the
-family. A video shows a news presenter recommending an investment — except she
+family. 
+
+A video shows a news presenter recommending an investment — except she
 never said those words. A message from "Facebook Support" says the account
 will be deleted in 24 hours unless the details are confirmed right now.
 
@@ -29,7 +31,7 @@ grandchildren. And it works, because the tell is always something small: a
 mouth slightly out of step with the words, an account created three weeks ago,
 a payment route that happens to be irreversible.
 
-This project won its hackathon on the clarity of that problem, not on the
+This project won its hackathon on the clarity of that problem combined with the
 cleverness of the open-source NVIDIA models underneath it. Everyone in the
 room had the same story about a parent — and about the phone call that came
 too late.
@@ -54,7 +56,7 @@ what to do next — down to *which* phone number to use.
 
 ### And a family view
 
-**Parental controls, pointing the other way.** A son or daughter gets a quiet
+**Parental controls, for our parents.** A son or daughter gets a quiet
 weekly view of what their mum was protected from: which scams reached her,
 what RUAI told her, and what she did next. Without reading her messages, and
 without taking her independence away.
