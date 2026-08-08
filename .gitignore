@@ -1,17 +1,42 @@
-# Node
+# ---- Secrets -----------------------------------------------------------
+# Only .env.example is ever committed. It carries keys, never values.
+.env
+.env.*
+!.env.example
+
+# ---- Python ------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# ---- Node / Next -------------------------------------------------------
 node_modules/
-web/node_modules/
-web/.next/
-web/.turbo/
-web/.vercel/
-web/.DS_Store
-web/.env.local
+.next/
+out/
+.turbo/
+.vercel/
+*.tsbuildinfo
+next-env.d.ts
+npm-debug.log*
+yarn-error.log*
 
-# Python
-backend/__pycache__/
-backend/.pytest_cache/
-backend/.DS_Store
-backend/.env
+# ---- RUAI runtime data -------------------------------------------------
+# The activity log is a local record of what the user has checked. It is
+# personal data and must never leave the machine that produced it.
+backend/data/
+*.csv
 
-# OS
+# ---- Editors and OS ----------------------------------------------------
+.vscode/
+.idea/
+*.swp
 .DS_Store
+Thumbs.db
