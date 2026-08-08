@@ -127,10 +127,10 @@ export default function Home() {
               </Link>
             </div>
             <p className="hero-note">
-              This won its hackathon on the clarity of the problem, not the
-              cleverness of the open-source NVIDIA models underneath it.
-              Everyone in the room had the same story about a parent, an aunt,
-              a grandfather — and about the phone call that came too late.
+              This won its hackathon on the clarity of the problem combined
+              with the cleverness of the open-source NVIDIA models underneath
+              it. Everyone in the room had the same story about a parent, an
+              aunt, a grandfather — and about the phone call that came too late.
             </p>
           </Reveal>
         </div>
@@ -238,7 +238,7 @@ export default function Home() {
             <Reveal>
               <span className="eyebrow">The family view</span>
               <h2 className="h-section">
-                Parental controls, pointing the other way
+                Parental controls, for our parents
               </h2>
               <p className="lede" style={{ marginBottom: "var(--ruai-5)" }}>
                 Our parents spent years watching what we did online. This turns

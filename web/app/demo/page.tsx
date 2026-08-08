@@ -15,7 +15,7 @@ import {
 export const metadata: Metadata = {
   title: "Family view — RUAI",
   description:
-    "Parental controls, pointing the other way. What an adult child sees about the scams their parent was protected from this week.",
+    "Parental controls, for our parents. What an adult child sees about the scams their parent was protected from this week.",
 };
 
 /**
@@ -49,7 +49,7 @@ export default function DemoPage() {
 
         <Reveal>
           <span className="eyebrow">Family view</span>
-          <h1 className="h-section">Parental controls, pointing the other way</h1>
+          <h1 className="h-section">Parental controls, for our parents</h1>
           <p className="lede" style={{ marginBottom: "var(--ruai-8)" }}>
             Parents spent years watching what their children did online. This is
             the same idea, turned around: a quiet way for adult children to know
