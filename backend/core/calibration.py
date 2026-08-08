@@ -56,4 +56,6 @@ def evidence_summary(signals: list[Signal]) -> str:
     counts = {level: 0 for level in Severity}
     for signal in signals:
         counts[signal.severity] += 1
-    return ", ".join(f"{count} {level.value}" for level, count in counts.items() if count)
+    # Strongest first, matching how the evidence is shown to the user.
+    order = (Severity.HIGH, Severity.MEDIUM, Severity.LOW)
+    return ", ".join(f"{counts[level]} {level.value}" for level in order if counts[level])

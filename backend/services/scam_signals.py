@@ -107,8 +107,8 @@ PATTERNS: tuple[Pattern, ...] = (
         key="manufactured_urgency",
         label="Pushes you to act fast",
         detail=(
-            "It says you must act immediately. Urgency stops people checking, "
-            "which is exactly why scammers use it. Real matters can wait."
+            "It says you must act immediately. Urgency is there to stop you "
+            "checking, and real matters can wait."
         ),
         severity=Severity.MEDIUM,
         phrases=(

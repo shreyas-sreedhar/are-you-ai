@@ -22,6 +22,11 @@ logger = logging.getLogger(__name__)
 _THINK_BLOCK = re.compile(r"<think>.*?</think>", re.DOTALL | re.IGNORECASE)
 _CODE_FENCE = re.compile(r"```(?:json)?\s*(.*?)\s*```", re.DOTALL)
 
+# Above this, a score was meant as a percentage. Below it, the model has
+# simply overshot 1.0 and should be clamped — reading 1.4 as 1.4% would turn
+# "certainly fake" into "nothing to see here".
+PERCENT_THRESHOLD = 1.5
+
 
 class EnvelopeError(ValueError):
     """The model's reply could not be read as the requested envelope."""
@@ -37,15 +42,14 @@ class ModelEnvelope(BaseModel):
     @field_validator("score", mode="before")
     @classmethod
     def _coerce_score(cls, value: Any) -> float:
-        """Accept "0.8", 80, and 80% — models produce all three."""
+        """Accept "0.8", 80, and "80%" — models produce all three."""
         if isinstance(value, str):
-            value = value.strip().rstrip("%")
+            value = value.strip().rstrip("%").strip()
         try:
             score = float(value)
         except (TypeError, ValueError):
             return 0.5
-        # A model that answered on a 0-100 scale meant 0-1.
-        if score > 1.0:
+        if score > PERCENT_THRESHOLD:
             score = score / 100.0
         return max(0.0, min(1.0, score))
 
