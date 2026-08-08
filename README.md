@@ -18,7 +18,7 @@ My mother is on Facebook. So is yours, probably, and an aunt, and a
 grandfather. And the people targeting them have got very good at it.
 
 A profile appears using a cousin's photo and name, saying she's stranded
-abroad and could you send £400 in gift cards, and please don't tell the
+abroad and could you send $400 in gift cards, and please don't tell the
 family. A video shows a news presenter recommending an investment — except she
 never said those words. A message from "Facebook Support" says the account
 will be deleted in 24 hours unless the details are confirmed right now.
@@ -30,8 +30,9 @@ mouth slightly out of step with the words, an account created three weeks ago,
 a payment route that happens to be irreversible.
 
 This project won its hackathon on the clarity of that problem, not on the
-cleverness of the model. Everyone in the room had the same story about a
-parent — and about the phone call that came too late.
+cleverness of the open-source NVIDIA models underneath it. Everyone in the
+room had the same story about a parent — and about the phone call that came
+too late.
 
 RUAI is the second opinion that arrives before the money does.
 

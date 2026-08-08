@@ -128,9 +128,9 @@ export default function Home() {
             </div>
             <p className="hero-note">
               This won its hackathon on the clarity of the problem, not the
-              cleverness of the model. Everyone in the room had the same story
-              about a parent, an aunt, a grandfather — and about the phone call
-              that came too late.
+              cleverness of the open-source NVIDIA models underneath it.
+              Everyone in the room had the same story about a parent, an aunt,
+              a grandfather — and about the phone call that came too late.
             </p>
           </Reveal>
         </div>
@@ -312,7 +312,7 @@ export default function Home() {
                 {[
                   {
                     risk: "danger",
-                    text: "Someone copied her cousin Margaret's profile and asked for £400 in gift cards.",
+                    text: "Someone copied her cousin Margaret's profile and asked for $400 in gift cards.",
                     outcome: "She rang the real Margaret. Margaret was at home.",
                   },
                   {

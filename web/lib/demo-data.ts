@@ -38,7 +38,7 @@ export const DEMO_STATS = [
   { value: "63", label: "Things checked this week" },
   { value: "4", label: "Scams stopped", tone: "danger" as const },
   { value: "2", label: "Fake profiles spotted", tone: "danger" as const },
-  { value: "£0", label: "Money lost", tone: "safe" as const },
+  { value: "$0", label: "Money lost", tone: "safe" as const },
 ];
 
 export const DEMO_ALERTS: DemoAlert[] = [
@@ -50,7 +50,7 @@ export const DEMO_ALERTS: DemoAlert[] = [
     where: "Messenger",
     headline: "Someone copied her cousin Margaret's profile",
     quote:
-      "Bri love, it's Margaret. I lost my old account. I'm stuck abroad and my card has been blocked — could you send £400 in gift cards? I'll pay you back Friday, please don't tell the family.",
+      "Bri love, it's Margaret. I lost my old account. I'm stuck abroad and my card has been blocked — could you send $400 in gift cards? I'll pay you back Friday, please don't tell the family.",
     told:
       "This looks like a scam. Someone has copied a profile you know. Real Margaret would not ask for gift cards.",
     outcome: "She closed it and rang the real Margaret. Margaret was at home.",
@@ -104,7 +104,7 @@ export const DEMO_ALERTS: DemoAlert[] = [
     where: "Facebook",
     headline: "A prize she had not entered for",
     quote:
-      "Congratulations Bri! You have been selected in our anniversary giveaway. Claim your £5,000 by paying the £29 delivery fee today.",
+      "Congratulations Bri! You have been selected in our anniversary giveaway. Claim your $5,000 by paying the $29 delivery fee today.",
     told:
       "Be careful with this message. Real prizes do not arrive by surprise, and they never ask for a fee.",
     outcome: "She deleted it without replying.",
