@@ -62,7 +62,7 @@ Run the website and open **`/demo`** to see it. It uses sample data, so it
 needs no backend, no API key and no setup — the fastest way to understand what
 this project is.
 
-<img src="docs/images/family-view.png" alt="The family view: Ruth's week, the scams that reached her, and what she did next">
+<img src="docs/images/family-view.png" alt="The family view: Bri's week, the scams that reached her, and what she did next">
 
 ## The idea underneath
 

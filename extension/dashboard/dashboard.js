@@ -146,7 +146,15 @@
       renderStats(summary);
       renderTimeline(entries);
     } catch (error) {
-      dom.stats.replaceChildren();
+      // Keep the stat row in place with placeholders. Removing it entirely
+      // makes a disconnected backend look like a broken page.
+      dom.stats.replaceChildren(
+        statCard("—", "Checks made"),
+        statCard("—", "Videos"),
+        statCard("—", "Messages"),
+        statCard("—", "Warnings raised")
+      );
+      dom.lastChecked.textContent = "Not connected to the checker.";
       renderEmpty(
         "RUAI is not connected",
         error?.userMessage || "The checker could not be reached."

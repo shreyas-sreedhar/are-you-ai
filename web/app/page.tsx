@@ -296,7 +296,7 @@ export default function Home() {
                   </span>
                   <div>
                     <strong style={{ fontSize: "var(--ruai-text-lg)" }}>
-                      Ruth&rsquo;s week
+                      Bri&rsquo;s week
                     </strong>
                     <div
                       style={{

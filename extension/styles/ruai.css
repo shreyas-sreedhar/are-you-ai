@@ -10,6 +10,8 @@
 
 /* --- Reset ------------------------------------------------------------- */
 
+/* Box and layout properties are forced on every descendant, because the host
+   page's global rules will otherwise reach in and reshape them. */
 .ruai-root,
 .ruai-root *,
 .ruai-root *::before,
@@ -18,22 +20,44 @@
   margin: 0;
   padding: 0;
   border: 0;
+  background: none;
+  list-style: none;
+}
+
+/* Inherited typography is set ONCE, on the root.
+   It must not go in the rule above: a declaration that matches an element
+   directly always beats a value inherited from its parent, whatever the
+   source order. Putting `text-align: left` on `.ruai-root *` therefore
+   silently overrides `text-align: center` on every container inside — which
+   is exactly what happened, and why centred empty states rendered flush
+   left. The same trap applies to color and line-height. */
+.ruai-root {
+  position: fixed;
+  z-index: var(--ruai-z-overlay);
   font-family: var(--ruai-font);
-  font-size: 100%;
+  font-size: var(--ruai-text-base);
   line-height: var(--ruai-leading);
   color: var(--ruai-ink);
   letter-spacing: normal;
   text-transform: none;
   text-align: left;
-  background: none;
-  list-style: none;
   -webkit-font-smoothing: antialiased;
 }
 
-.ruai-root {
-  position: fixed;
-  z-index: var(--ruai-z-overlay);
-  font-size: var(--ruai-text-base);
+/* Form controls and headings are given their own font and size by the
+   browser, so they will not inherit ours without being told to.
+   Wrapped in :where() so this contributes no extra specificity — an element
+   selector here would outrank every component class below it. */
+.ruai-root
+  :where(button, input, textarea, select, h1, h2, h3, h4, summary) {
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+  text-align: inherit;
+  text-transform: none;
 }
 
 .ruai-root button {

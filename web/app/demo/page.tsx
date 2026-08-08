@@ -35,7 +35,7 @@ export default function DemoPage() {
               <CheckIcon />
             </span>
             <span>
-              <strong>This is a demonstration.</strong> Ruth is not a real
+              <strong>This is a demonstration.</strong> Bri is not a real
               person and none of these messages were really sent — but every
               one is modelled on a scam that runs against older people on
               Facebook and Instagram every day.{" "}
@@ -117,7 +117,7 @@ export default function DemoPage() {
                 marginBottom: "var(--ruai-5)",
               }}
             >
-              Six things RUAI checked, what it said, and what Ruth did next.
+              Six things RUAI checked, what it said, and what Bri did next.
             </p>
 
             {DEMO_ALERTS.map((alert) => (

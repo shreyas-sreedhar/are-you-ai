@@ -27,7 +27,7 @@ export interface DemoAlert {
 }
 
 export const PARENT = {
-  name: "Ruth",
+  name: "Bri",
   relationship: "Your mother",
   age: 78,
   lastActive: "20 minutes ago",
@@ -50,7 +50,7 @@ export const DEMO_ALERTS: DemoAlert[] = [
     where: "Messenger",
     headline: "Someone copied her cousin Margaret's profile",
     quote:
-      "Ruth love, it's Margaret. I lost my old account. I'm stuck abroad and my card has been blocked — could you send £400 in gift cards? I'll pay you back Friday, please don't tell the family.",
+      "Bri love, it's Margaret. I lost my old account. I'm stuck abroad and my card has been blocked — could you send £400 in gift cards? I'll pay you back Friday, please don't tell the family.",
     told:
       "This looks like a scam. Someone has copied a profile you know. Real Margaret would not ask for gift cards.",
     outcome: "She closed it and rang the real Margaret. Margaret was at home.",
@@ -90,7 +90,7 @@ export const DEMO_ALERTS: DemoAlert[] = [
     where: "Instagram",
     headline: "A new account has been very affectionate very quickly",
     quote:
-      "Good evening my dear Ruth. I think about you all day. I am a widower too, working offshore. I feel we were meant to find each other.",
+      "Good evening my dear Bri. I think about you all day. I am a widower too, working offshore. I feel we were meant to find each other.",
     told:
       "Be careful with this message. Strong affection this early is how romance scams begin. There is no rush.",
     outcome: "Still talking to them. Worth a gentle conversation.",
@@ -104,7 +104,7 @@ export const DEMO_ALERTS: DemoAlert[] = [
     where: "Facebook",
     headline: "A prize she had not entered for",
     quote:
-      "Congratulations Ruth! You have been selected in our anniversary giveaway. Claim your £5,000 by paying the £29 delivery fee today.",
+      "Congratulations Bri! You have been selected in our anniversary giveaway. Claim your £5,000 by paying the £29 delivery fee today.",
     told:
       "Be careful with this message. Real prizes do not arrive by surprise, and they never ask for a fee.",
     outcome: "She deleted it without replying.",
@@ -130,7 +130,7 @@ export const DEMO_INSIGHTS = [
   },
   {
     title: "Every money request this week asked for gift cards",
-    body: "It is the route scammers prefer because it cannot be reversed. Ruth has now been shown that three times, in the same words.",
+    body: "It is the route scammers prefer because it cannot be reversed. Bri has now been shown that three times, in the same words.",
   },
   {
     title: "She checked something herself four times",
@@ -157,7 +157,7 @@ export const DEMO_SETTINGS = [
     on: true,
   },
   {
-    label: "Tell Ruth when I have been notified",
+    label: "Tell Bri when I have been notified",
     note: "On by default. Watching someone without their knowledge is not care.",
     on: true,
   },
