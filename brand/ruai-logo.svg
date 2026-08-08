@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 128" width="420" height="128" role="img" aria-label="RUAI — are you AI?">
+  <defs>
+    <linearGradient id="ruaiLogo" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#3B5BF5"/>
+      <stop offset="1" stop-color="#8B3BF5"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="128" height="128" rx="30" fill="url(#ruaiLogo)"/>
+  <path d="M45 50 A19 19 0 0 1 83 50 L64 78"
+        fill="none" stroke="#fff" stroke-width="12"
+        stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="57" y="88" width="14" height="14" rx="3.5" fill="#fff"/>
+
+  <text x="156" y="66" fill="currentColor"
+        font-family="'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif"
+        font-size="54" font-weight="800" letter-spacing="-1.5">RUAI</text>
+  <text x="158" y="96" fill="currentColor" opacity="0.6"
+        font-family="'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif"
+        font-size="19" font-weight="600" letter-spacing="0.4">Are you AI?</text>
+</svg>

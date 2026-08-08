@@ -1,0 +1,129 @@
+/* ==========================================================================
+   RUAI design tokens — the single source of truth for the whole product.
+
+   Copied into the extension by `python scripts/sync_brand.py` and imported
+   directly by the web app. Edit this file, never the copies.
+
+   Design brief: RUAI is used by people in their 70s and 80s, often on a
+   laptop they did not choose, sometimes with reduced vision and unsteady
+   hands. Every value below is picked with that in mind:
+
+     - Body text starts at 17px, never below 15px.
+     - Text/background pairs clear WCAG AA (4.5:1); verdict text clears AAA.
+     - Interactive targets are at least 44x44px.
+     - Risk is never signalled by colour alone — always colour + word + icon.
+     - All motion is opt-out via prefers-reduced-motion.
+   ========================================================================== */
+
+:root {
+  /* --- Brand ------------------------------------------------------------ */
+  --ruai-brand-1: #3b5bf5;
+  --ruai-brand-2: #8b3bf5;
+  --ruai-brand: var(--ruai-brand-1);
+  --ruai-brand-strong: #2b45c9;
+  --ruai-brand-soft: #eef1ff;
+  --ruai-gradient: linear-gradient(135deg, #3b5bf5 0%, #8b3bf5 100%);
+  --ruai-gradient-soft: linear-gradient(135deg, #eef1ff 0%, #f6eeff 100%);
+
+  /* --- Verdict scale ---------------------------------------------------- */
+  /* Three levels, deliberately. More than three is a decision, not an answer. */
+  --ruai-safe: #067a55;
+  --ruai-safe-soft: #e7f6f0;
+  --ruai-safe-line: #a7ddc9;
+
+  --ruai-caution: #9a5600;
+  --ruai-caution-soft: #fdf3e2;
+  --ruai-caution-line: #f0cf98;
+
+  --ruai-danger: #c1262d;
+  --ruai-danger-soft: #fcebec;
+  --ruai-danger-line: #f2b3b6;
+
+  /* --- Neutrals --------------------------------------------------------- */
+  --ruai-ink: #0f1524;
+  --ruai-ink-2: #3c465c;
+  --ruai-ink-3: #6b7690;
+  --ruai-line: #e3e7f0;
+  --ruai-line-strong: #cdd4e4;
+  --ruai-surface: #ffffff;
+  --ruai-surface-2: #fafbff;
+  --ruai-canvas: #f5f6fb;
+  --ruai-night: #0b1020;
+  --ruai-night-2: #141b32;
+
+  /* --- Type ------------------------------------------------------------- */
+  --ruai-font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --ruai-font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+
+  --ruai-text-xs: 0.8125rem;  /* 13px — metadata only, never a sentence */
+  --ruai-text-sm: 0.9375rem;  /* 15px */
+  --ruai-text-base: 1.0625rem;/* 17px — default body */
+  --ruai-text-lg: 1.1875rem;  /* 19px */
+  --ruai-text-xl: 1.375rem;   /* 22px */
+  --ruai-text-2xl: 1.75rem;   /* 28px */
+  --ruai-text-3xl: 2.25rem;   /* 36px */
+  --ruai-text-4xl: 3rem;      /* 48px */
+  --ruai-text-5xl: 4rem;      /* 64px */
+
+  --ruai-leading-tight: 1.15;
+  --ruai-leading-snug: 1.35;
+  --ruai-leading: 1.6;
+
+  /* --- Space ------------------------------------------------------------ */
+  --ruai-1: 4px;
+  --ruai-2: 8px;
+  --ruai-3: 12px;
+  --ruai-4: 16px;
+  --ruai-5: 20px;
+  --ruai-6: 24px;
+  --ruai-8: 32px;
+  --ruai-10: 40px;
+  --ruai-12: 48px;
+  --ruai-16: 64px;
+  --ruai-20: 80px;
+
+  /* --- Shape ------------------------------------------------------------ */
+  --ruai-radius-sm: 8px;
+  --ruai-radius: 14px;
+  --ruai-radius-lg: 20px;
+  --ruai-radius-xl: 28px;
+  --ruai-radius-pill: 999px;
+
+  /* Minimum comfortable target for an unsteady hand. */
+  --ruai-target: 48px;
+
+  /* --- Elevation -------------------------------------------------------- */
+  --ruai-shadow-sm: 0 1px 2px rgba(15, 21, 36, 0.06),
+    0 1px 3px rgba(15, 21, 36, 0.04);
+  --ruai-shadow: 0 4px 12px rgba(15, 21, 36, 0.07),
+    0 1px 3px rgba(15, 21, 36, 0.05);
+  --ruai-shadow-lg: 0 18px 40px rgba(15, 21, 36, 0.12),
+    0 4px 12px rgba(15, 21, 36, 0.06);
+  --ruai-shadow-xl: 0 32px 70px rgba(15, 21, 36, 0.18),
+    0 8px 20px rgba(15, 21, 36, 0.08);
+  --ruai-ring: 0 0 0 4px rgba(59, 91, 245, 0.28);
+
+  /* --- Motion ----------------------------------------------------------- */
+  /* One easing curve everywhere. Consistency reads as craft. */
+  --ruai-ease: cubic-bezier(0.22, 0.85, 0.3, 1);
+  --ruai-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ruai-fast: 140ms;
+  --ruai-base: 240ms;
+  --ruai-slow: 420ms;
+
+  /* --- Layering --------------------------------------------------------- */
+  /* The extension injects into pages that use very high z-indexes. */
+  --ruai-z-overlay: 2147483000;
+  --ruai-z-modal: 2147483100;
+}
+
+/* Anyone who has asked their operating system to calm things down gets a
+   still interface, not a slightly-less-animated one. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --ruai-fast: 1ms;
+    --ruai-base: 1ms;
+    --ruai-slow: 1ms;
+  }
+}

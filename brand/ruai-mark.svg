@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" role="img" aria-label="RUAI">
+  <defs>
+    <linearGradient id="ruaiMark" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#3B5BF5"/>
+      <stop offset="1" stop-color="#8B3BF5"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="30" fill="url(#ruaiMark)"/>
+  <path d="M44.3 42.8 A21 21 0 1 1 82.2 60.5 L64 80"
+        fill="none" stroke="#fff" stroke-width="11"
+        stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="57.5" y="91.5" width="13" height="13" rx="3.25" fill="#fff"/>
+</svg>
