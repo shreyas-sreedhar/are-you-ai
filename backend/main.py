@@ -1,77 +1,84 @@
-"""FastAPI application main entry point."""
+"""RUAI backend entry point."""
+
+from __future__ import annotations
+
 import logging
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from api.routes import router
-from api.dashboard_routes import router as dashboard_router
-from config.settings import settings
+from config.settings import APP_DESCRIPTION, APP_NAME, APP_VERSION, settings
+from services.nim_client import nim_client
 
-# Configure logging
 logging.basicConfig(
     level=logging.DEBUG if settings.debug else logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    format="%(asctime)s  %(levelname)-7s %(name)s  %(message)s",
+    datefmt="%H:%M:%S",
 )
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("ruai")
 
-# Initialize FastAPI app
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    logger.info("%s %s starting on %s:%s", APP_NAME, APP_VERSION, settings.host, settings.port)
+    logger.info("vision model: %s", settings.nim_vision_model)
+    logger.info("text model:   %s", settings.nim_text_model)
+
+    if not settings.nim_configured:
+        logger.warning(
+            "NIM_API_KEY is not set. Video and article checks will return 503; "
+            "message checks will fall back to the local pattern scan. "
+            "Copy .env.example to .env and add a key from build.nvidia.com."
+        )
+
+    yield
+
+    # The NIM client holds a pooled connection for the process lifetime.
+    await nim_client.aclose()
+    logger.info("%s stopped", APP_NAME)
+
+
 app = FastAPI(
-    title="AI Video Fakeness Detector API",
-    description="Backend API for detecting AI-generated fake videos using NVIDIA NIM",
-    version="1.0.0"
+    title=f"{APP_NAME} API",
+    description=APP_DESCRIPTION,
+    version=APP_VERSION,
+    lifespan=lifespan,
 )
 
-# Configure CORS for Chrome extension
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "chrome-extension://*",
-        "http://localhost:*",
-        "http://127.0.0.1:*",
-        "*"  # Allow all origins for development (restrict in production)
-    ],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    # Chrome sends `Origin: chrome-extension://<id>`, which cannot be matched
+    # by a wildcard entry, so the extension is allowed by regex instead.
+    allow_origins=settings.allowed_origins,
+    allow_origin_regex=r"^chrome-extension://[a-p]{32}$",
+    # No cookies or auth headers are used, so credentials stay off. This also
+    # keeps the browser from rejecting the config outright.
+    allow_credentials=False,
+    allow_methods=["GET", "POST", "DELETE", "OPTIONS"],
+    allow_headers=["Content-Type"],
 )
 
-# Include API routes
 app.include_router(router)
-app.include_router(dashboard_router)
 
 
-@app.get("/")
-async def root():
-    """Root endpoint."""
+@app.get("/", tags=["system"])
+async def root() -> dict[str, object]:
     return {
-        "message": "AI Video Fakeness Detector API",
-        "version": "1.0.0",
-        "endpoints": {
-            "health": "/api/v1/health",
-            "analyze_frame": "/api/v1/analyze-frame",
-            "analyze_batch": "/api/v1/analyze-batch"
-        }
+        "name": APP_NAME,
+        "version": APP_VERSION,
+        "description": APP_DESCRIPTION,
+        "docs": "/docs",
+        "checks": [
+            "POST /api/v1/check/video",
+            "POST /api/v1/check/message",
+            "POST /api/v1/check/article",
+        ],
     }
-
-
-@app.on_event("startup")
-async def startup_event():
-    """Log startup information."""
-    logger.info("Starting AI Video Fakeness Detector API")
-    logger.info(f"Host: {settings.host}")
-    logger.info(f"Port: {settings.port}")
-    logger.info(f"Debug mode: {settings.debug}")
-    logger.info(f"NIM API Endpoint: {settings.nim_api_endpoint}")
-    logger.info(f"NIM Model: {settings.nim_model_name}")
-    logger.info("API ready to accept requests")
 
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(
-        "main:app",
-        host=settings.host,
-        port=settings.port,
-        reload=settings.debug
-    )
 
+    uvicorn.run("main:app", host=settings.host, port=settings.port, reload=settings.debug)
