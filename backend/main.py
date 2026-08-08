@@ -22,7 +22,10 @@ logger = logging.getLogger("ruai")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logger.info("%s %s starting on %s:%s", APP_NAME, APP_VERSION, settings.host, settings.port)
+    # Not the bound address: uvicorn's own --host/--port win over these, and
+    # printing settings.port next to a server started with --port 8001 is how
+    # people lose twenty minutes.
+    logger.info("%s %s starting", APP_NAME, APP_VERSION)
     logger.info("vision model: %s", settings.nim_vision_model)
     logger.info("text model:   %s", settings.nim_text_model)
 
