@@ -111,12 +111,12 @@ export default function Home() {
               Someone is pretending to be your mother&rsquo;s cousin.
             </h1>
             <p className="lede">
-              Our parents are on Facebook and Instagram now, and the people
-              targeting them have got very good at it. A cloned profile. A
-              grandchild in trouble who needs gift cards tonight. A news
-              presenter who never said those words. RUAI checks whether what
-              they are looking at is real, explains it in plain words, and tells
-              them what to do next.
+              Our parents only recently discovered social media. The people
+              targeting them have been there for twenty years, and have got
+              very good at it. A cloned profile. A grandchild in trouble who
+              needs gift cards tonight. A news presenter who never said those
+              words. RUAI checks whether what they are looking at is real,
+              explains it in plain words, and tells them what to do next.
             </p>
             <div className="hero-actions">
               <Link href="/demo" className="btn btn-primary">

@@ -14,8 +14,10 @@
 
 ## Why this exists
 
-My grandmother is on Social Media. So is yours, probably, and an aunt, and a
-grandfather. And the people targeting them to scam them have got very good at it.
+My mom discovered social media a couple of years ago. So did yours, probably —
+and a dad, a grandmother, an aunt. They arrived twenty years late to a place
+that has spent those twenty years learning how to be convincing. And the
+people who target them have got very good at it.
 
 A fake profile appears using a relative's photo and name, saying she's stranded
 abroad and could you send $400 in gift cards, and please don't tell the
