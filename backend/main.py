@@ -49,10 +49,17 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    # Chrome sends `Origin: chrome-extension://<id>`, which cannot be matched
-    # by a wildcard entry, so the extension is allowed by regex instead.
+    # Explicit list for anything deployed.
     allow_origins=settings.allowed_origins,
-    allow_origin_regex=r"^chrome-extension://[a-p]{32}$",
+    # Two things a wildcard entry cannot express:
+    #  - Chrome sends `Origin: chrome-extension://<32 letters>`.
+    #  - Local development moves ports whenever one is already taken, and
+    #    losing an afternoon to a CORS error is a bad trade for a service
+    #    that is bound to the loopback interface anyway.
+    allow_origin_regex=(
+        r"^(chrome-extension://[a-p]{32}"
+        r"|http://(localhost|127\.0\.0\.1)(:\d{1,5})?)$"
+    ),
     # No cookies or auth headers are used, so credentials stay off. This also
     # keeps the browser from rejecting the config outright.
     allow_credentials=False,
