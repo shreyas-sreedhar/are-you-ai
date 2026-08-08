@@ -10,7 +10,9 @@ import { Mark } from "./Brand";
 const LINKS = [
   { href: "/", label: "Overview" },
   { href: "/try", label: "Try it" },
-  { href: "/dashboard", label: "History" },
+  // The demo needs no backend, so it is the one that gets the nav slot.
+  // The live version is linked from inside it.
+  { href: "/demo", label: "Family view" },
 ];
 
 export function Nav() {

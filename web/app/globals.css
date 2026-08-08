@@ -1029,6 +1029,330 @@ h3 {
   animation: shimmer 1.4s ease infinite;
 }
 
+/* --- Family view --------------------------------------------------------
+   The dashboard an adult child sees. Parental controls, pointing the other
+   way up the family tree. */
+
+.demo-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--ruai-3);
+  padding: var(--ruai-4) var(--ruai-5);
+  margin-bottom: var(--ruai-6);
+  border-radius: var(--ruai-radius);
+  background: var(--ruai-brand-soft);
+  border: 1px solid #c9d3ff;
+  color: var(--ruai-brand-strong);
+  font-size: var(--ruai-text-sm);
+}
+
+.demo-banner strong {
+  font-weight: 700;
+}
+
+.person {
+  display: flex;
+  align-items: center;
+  gap: var(--ruai-5);
+  flex-wrap: wrap;
+  padding: var(--ruai-6);
+  border-radius: var(--ruai-radius-lg);
+  background: var(--ruai-night);
+  color: #fff;
+  margin-bottom: var(--ruai-6);
+}
+
+.person-avatar {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--ruai-gradient);
+  font-size: var(--ruai-text-2xl);
+  font-weight: 750;
+  color: #fff;
+}
+
+.person-main {
+  flex: 1;
+  min-width: 200px;
+}
+
+.person-main h1 {
+  font-size: var(--ruai-text-2xl);
+  color: #fff;
+}
+
+.person-main p {
+  color: rgba(255, 255, 255, 0.66);
+  font-size: var(--ruai-text-sm);
+  margin-top: 2px;
+}
+
+.person-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ruai-2);
+  padding: 8px var(--ruai-4);
+  border-radius: var(--ruai-radius-pill);
+  background: rgba(6, 122, 85, 0.22);
+  border: 1px solid rgba(167, 221, 201, 0.4);
+  color: #8ce0bf;
+  font-size: var(--ruai-text-sm);
+  font-weight: 650;
+}
+
+.person-badge::before {
+  content: "";
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* --- Rich alert cards --------------------------------------------------- */
+
+.alert-card {
+  padding: var(--ruai-5);
+  border-radius: var(--ruai-radius);
+  border: 1px solid var(--ruai-line);
+  background: var(--ruai-surface);
+  border-left-width: 4px;
+}
+
+.alert-card + .alert-card {
+  margin-top: var(--ruai-4);
+}
+
+.alert-card[data-risk="danger"] { border-left-color: var(--ruai-danger); }
+.alert-card[data-risk="caution"] { border-left-color: var(--ruai-caution); }
+.alert-card[data-risk="safe"] { border-left-color: var(--ruai-safe); }
+
+.alert-top {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ruai-3);
+  margin-bottom: var(--ruai-3);
+}
+
+.alert-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+}
+
+.alert-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.alert-card[data-risk="danger"] .alert-icon {
+  background: var(--ruai-danger-soft);
+  color: var(--ruai-danger);
+}
+
+.alert-card[data-risk="caution"] .alert-icon {
+  background: var(--ruai-caution-soft);
+  color: var(--ruai-caution);
+}
+
+.alert-card[data-risk="safe"] .alert-icon {
+  background: var(--ruai-safe-soft);
+  color: var(--ruai-safe);
+}
+
+.alert-heading {
+  flex: 1;
+  min-width: 0;
+}
+
+.alert-heading h3 {
+  font-size: var(--ruai-text-lg);
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  line-height: var(--ruai-leading-snug);
+}
+
+.alert-when {
+  display: block;
+  margin-top: 2px;
+  font-size: var(--ruai-text-sm);
+  color: var(--ruai-ink-3);
+}
+
+.alert-quote {
+  margin: var(--ruai-3) 0;
+  padding: var(--ruai-4);
+  border-radius: var(--ruai-radius-sm);
+  background: var(--ruai-canvas);
+  color: var(--ruai-ink-2);
+  font-size: var(--ruai-text-sm);
+  line-height: var(--ruai-leading);
+  font-style: italic;
+}
+
+.alert-told {
+  display: flex;
+  gap: var(--ruai-3);
+  padding: var(--ruai-3) var(--ruai-4);
+  border-radius: var(--ruai-radius-sm);
+  background: var(--ruai-gradient-soft);
+  font-size: var(--ruai-text-sm);
+}
+
+.alert-told-label {
+  flex: 0 0 auto;
+  font-weight: 700;
+  color: var(--ruai-brand-strong);
+}
+
+.alert-outcome {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ruai-2);
+  margin-top: var(--ruai-3);
+  font-size: var(--ruai-text-sm);
+  font-weight: 600;
+}
+
+.alert-outcome[data-tone="good"] { color: var(--ruai-safe); }
+.alert-outcome[data-tone="attention"] { color: var(--ruai-caution); }
+.alert-outcome[data-tone="neutral"] { color: var(--ruai-ink-3); }
+
+.alert-outcome svg {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+}
+
+/* --- Insights ----------------------------------------------------------- */
+
+.insight {
+  padding: var(--ruai-5);
+  border-radius: var(--ruai-radius);
+  background: var(--ruai-gradient-soft);
+  height: 100%;
+}
+
+.insight h3 {
+  font-size: var(--ruai-text-base);
+  font-weight: 700;
+  line-height: var(--ruai-leading-snug);
+  margin-bottom: var(--ruai-2);
+}
+
+.insight p {
+  font-size: var(--ruai-text-sm);
+  color: var(--ruai-ink-2);
+}
+
+/* --- Where it comes from ------------------------------------------------ */
+
+.breakdown {
+  display: grid;
+  gap: var(--ruai-3);
+}
+
+.breakdown-row {
+  display: grid;
+  grid-template-columns: 110px 1fr 48px;
+  align-items: center;
+  gap: var(--ruai-3);
+  font-size: var(--ruai-text-sm);
+}
+
+.breakdown-track {
+  display: block;
+  height: 12px;
+  border-radius: var(--ruai-radius-pill);
+  background: var(--ruai-canvas);
+  overflow: hidden;
+}
+
+/* Both must be block: an inline span ignores height, which renders the bar
+   as an empty track. */
+.breakdown-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  transition: width var(--ruai-slow) var(--ruai-ease-out);
+}
+
+.breakdown-fill[data-tone="danger"] { background: var(--ruai-danger); }
+.breakdown-fill[data-tone="caution"] { background: var(--ruai-caution); }
+.breakdown-fill[data-tone="safe"] { background: var(--ruai-safe); }
+.breakdown-fill[data-tone="neutral"] { background: var(--ruai-ink-3); }
+
+.breakdown-value {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--ruai-ink-3);
+}
+
+/* --- Family settings ---------------------------------------------------- */
+
+.setting {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ruai-5);
+  padding: var(--ruai-4) 0;
+}
+
+.setting + .setting {
+  border-top: 1px solid var(--ruai-line);
+}
+
+.setting-label {
+  display: block;
+  font-size: var(--ruai-text-base);
+  font-weight: 650;
+}
+
+.setting-note {
+  display: block;
+  margin-top: 2px;
+  font-size: var(--ruai-text-sm);
+  color: var(--ruai-ink-3);
+  line-height: var(--ruai-leading-snug);
+}
+
+.switch {
+  position: relative;
+  flex: 0 0 auto;
+  width: 52px;
+  height: 30px;
+  border-radius: var(--ruai-radius-pill);
+  background: var(--ruai-line-strong);
+  transition: background-color var(--ruai-base) var(--ruai-ease);
+}
+
+.switch[data-on="true"] {
+  background: var(--ruai-brand);
+}
+
+.switch::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: var(--ruai-shadow-sm);
+  transition: transform var(--ruai-base) var(--ruai-ease);
+}
+
+.switch[data-on="true"]::after {
+  transform: translateX(22px);
+}
+
 /* --- Status ------------------------------------------------------------- */
 
 .status {

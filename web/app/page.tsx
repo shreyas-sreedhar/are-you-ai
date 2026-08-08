@@ -6,6 +6,12 @@ import { Reveal } from "../components/Reveal";
 import { VerdictCard } from "../components/VerdictCard";
 import type { Verdict } from "../lib/types";
 
+/**
+ * The award line shown in the hero.
+ * TODO: replace with the event's actual name before publishing.
+ */
+const AWARD = "Hackathon winner";
+
 /** A real response shape, filled with a representative result. */
 const SAMPLE: Verdict = {
   kind: "message",
@@ -49,19 +55,19 @@ const SAMPLE: Verdict = {
 
 const CHECKS = [
   {
-    title: "A video",
+    title: "The video in her feed",
     where: "YouTube, Facebook",
-    body: "Grabs a short burst of frames and looks for things that cannot physically happen — fingers that merge, signage that dissolves, objects that slide without being pushed.",
+    body: "The investment tip from a presenter she recognises. RUAI grabs a burst of frames and looks for things that cannot physically happen — a mouth out of step with the words, a logo that redraws itself, fingers that merge.",
   },
   {
-    title: "A message",
+    title: "The message from a friend",
     where: "Messenger, Instagram",
-    body: "Reads the message the way a fraud investigator would: not what it is about, but what it is trying to make you do, and how fast.",
+    body: "Except the account is three weeks old and the photo is her cousin's. RUAI reads it the way a fraud investigator would: not what it is about, but what it is trying to make her do, and how fast.",
   },
   {
-    title: "A story",
-    where: "Anything you paste in",
-    body: "Takes a forwarded article or a claim and says whether it holds up, or whether it simply cannot be confirmed.",
+    title: "The story she was forwarded",
+    where: "Anything pasted in",
+    body: "The one that has been round the family WhatsApp twice. RUAI says whether it holds up, or — just as often, and just as usefully — that it simply cannot be confirmed.",
   },
 ];
 
@@ -99,26 +105,32 @@ export default function Home() {
         <div className="shell hero-inner">
           <Reveal>
             <span className="eyebrow hero-eyebrow">
-              Built for the people fraud targets hardest
+              {AWARD} · AI for the people fraud targets hardest
             </span>
-            <h1 className="h-display">Ask before you believe it.</h1>
+            <h1 className="h-display">
+              Someone is pretending to be your mother&rsquo;s cousin.
+            </h1>
             <p className="lede">
-              RUAI checks whether a video was made by AI, whether a message is a
-              scam, and whether a story holds up. Then it explains the answer in
-              words your grandmother would use, and tells her what to do next.
+              Our parents are on Facebook and Instagram now, and the people
+              targeting them have got very good at it. A cloned profile. A
+              grandchild in trouble who needs gift cards tonight. A news
+              presenter who never said those words. RUAI checks whether what
+              they are looking at is real, explains it in plain words, and tells
+              them what to do next.
             </p>
             <div className="hero-actions">
-              <Link href="/try" className="btn btn-primary">
-                Try a check
+              <Link href="/demo" className="btn btn-primary">
+                See what a family sees
               </Link>
-              <Link href="#architecture" className="btn btn-ghost">
-                How it is built
+              <Link href="/try" className="btn btn-ghost">
+                Try a check
               </Link>
             </div>
             <p className="hero-note">
-              Adults over 60 lose more money per fraud report than any other age
-              group, and most of it starts with something on a screen that looked
-              real.
+              This won its hackathon on the clarity of the problem, not the
+              cleverness of the model. Everyone in the room had the same story
+              about a parent, an aunt, a grandfather — and about the phone call
+              that came too late.
             </p>
           </Reveal>
         </div>
@@ -132,8 +144,9 @@ export default function Home() {
               &ldquo;Is this real?&rdquo; comes up in three places
             </h2>
             <p className="lede">
-              They look like three products. They are one, because the answer a
-              person needs is identical in all three cases.
+              They look like three products. They are one, because the answer an
+              80-year-old needs is identical in all three cases: is it real,
+              how do you know, and what should I do now.
             </p>
           </Reveal>
 
@@ -221,6 +234,148 @@ export default function Home() {
 
       <section className="section">
         <div className="shell">
+          <div className="grid grid-2" style={{ gap: "var(--ruai-12)", alignItems: "center" }}>
+            <Reveal>
+              <span className="eyebrow">The family view</span>
+              <h2 className="h-section">
+                Parental controls, pointing the other way
+              </h2>
+              <p className="lede" style={{ marginBottom: "var(--ruai-5)" }}>
+                Our parents spent years watching what we did online. This turns
+                that around. A son or daughter gets a quiet weekly view of what
+                their mum was protected from — which scams reached her, what
+                RUAI told her, and what she did next.
+              </p>
+              <p style={{ color: "var(--ruai-ink-2)", marginBottom: "var(--ruai-6)" }}>
+                Without reading her messages, and without taking her
+                independence away. The defaults were the hardest design problem
+                in the project: she is told whenever the family is told, and
+                nobody sees the text of a message unless she shares it.
+              </p>
+              <Link href="/demo" className="btn btn-primary">
+                See the family view
+              </Link>
+              <p
+                style={{
+                  marginTop: "var(--ruai-3)",
+                  fontSize: "var(--ruai-text-sm)",
+                  color: "var(--ruai-ink-3)",
+                }}
+              >
+                Sample data. No setup, no backend, no account.
+              </p>
+            </Reveal>
+
+            <Reveal delay={120}>
+              <div className="card" style={{ padding: "var(--ruai-5)" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "var(--ruai-4)",
+                    paddingBottom: "var(--ruai-4)",
+                    borderBottom: "1px solid var(--ruai-line)",
+                    marginBottom: "var(--ruai-4)",
+                  }}
+                >
+                  <span
+                    style={{
+                      display: "grid",
+                      placeItems: "center",
+                      width: 48,
+                      height: 48,
+                      borderRadius: "50%",
+                      background: "var(--ruai-gradient)",
+                      color: "#fff",
+                      fontWeight: 750,
+                      fontSize: "var(--ruai-text-xl)",
+                    }}
+                    aria-hidden="true"
+                  >
+                    R
+                  </span>
+                  <div>
+                    <strong style={{ fontSize: "var(--ruai-text-lg)" }}>
+                      Ruth&rsquo;s week
+                    </strong>
+                    <div
+                      style={{
+                        fontSize: "var(--ruai-text-sm)",
+                        color: "var(--ruai-ink-3)",
+                      }}
+                    >
+                      Your mother · 78 · protection on
+                    </div>
+                  </div>
+                </div>
+
+                {[
+                  {
+                    risk: "danger",
+                    text: "Someone copied her cousin Margaret's profile and asked for £400 in gift cards.",
+                    outcome: "She rang the real Margaret. Margaret was at home.",
+                  },
+                  {
+                    risk: "danger",
+                    text: "An investment video using a deepfaked news presenter.",
+                    outcome: "She read the warning and scrolled past.",
+                  },
+                  {
+                    risk: "caution",
+                    text: "A three-week-old account has become very affectionate very quickly.",
+                    outcome: "Still talking. Worth a gentle conversation.",
+                  },
+                ].map((row) => (
+                  <div
+                    key={row.text}
+                    style={{
+                      display: "flex",
+                      gap: "var(--ruai-3)",
+                      padding: "var(--ruai-3) 0",
+                    }}
+                  >
+                    <span
+                      style={{
+                        flex: "0 0 auto",
+                        width: 10,
+                        height: 10,
+                        marginTop: 8,
+                        borderRadius: "50%",
+                        background:
+                          row.risk === "danger"
+                            ? "var(--ruai-danger)"
+                            : "var(--ruai-caution)",
+                      }}
+                    />
+                    <div>
+                      <div
+                        style={{
+                          fontSize: "var(--ruai-text-sm)",
+                          fontWeight: 600,
+                        }}
+                      >
+                        {row.text}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "var(--ruai-text-sm)",
+                          color: "var(--ruai-safe)",
+                          marginTop: 2,
+                        }}
+                      >
+                        {row.outcome}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Reveal>
+          </div>
+        </div>
+      </section>
+
+      <section className="section" style={{ background: "var(--ruai-surface)" }}>
+        <div className="shell">
           <Reveal>
             <span className="eyebrow">Decisions</span>
             <h2 className="h-section">Six choices that shaped it</h2>
@@ -250,11 +405,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section
-        className="section"
-        id="architecture"
-        style={{ background: "var(--ruai-surface)" }}
-      >
+      <section className="section" id="architecture">
         <div className="shell">
           <Reveal>
             <span className="eyebrow">Architecture</span>
@@ -373,12 +524,24 @@ export default function Home() {
           <Reveal>
             <h2 className="h-section">See it answer something</h2>
             <p className="lede" style={{ margin: "0 auto var(--ruai-6)" }}>
-              Paste a message, a story, or a frame from a video. The same three
-              routes the extension uses.
+              Paste in the message your mum forwarded you last week. The same
+              three routes the extension uses, running live.
             </p>
-            <Link href="/try" className="btn btn-primary">
-              Try a check
-            </Link>
+            <div
+              style={{
+                display: "flex",
+                gap: "var(--ruai-3)",
+                justifyContent: "center",
+                flexWrap: "wrap",
+              }}
+            >
+              <Link href="/try" className="btn btn-primary">
+                Try a check
+              </Link>
+              <Link href="/demo" className="btn btn-quiet">
+                See the family view
+              </Link>
+            </div>
           </Reveal>
         </div>
       </section>
