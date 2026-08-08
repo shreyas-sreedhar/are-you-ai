@@ -2,86 +2,87 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TrustGuard AI - Content Verification</title>
-  <link rel="stylesheet" href="popup.css">
+  <meta charset="UTF-8" />
+  <title>RUAI</title>
+  <link rel="stylesheet" href="../styles/tokens.css" />
+  <link rel="stylesheet" href="../styles/ruai.css" />
+  <link rel="stylesheet" href="popup.css" />
 </head>
 
 <body>
-  <div class="popup-container">
-    <div class="popup-header">
-      <h1>🛡️ TrustGuard AI</h1>
-      <p class="subtitle">AI-Powered Content Verification</p>
-    </div>
-
-    <div class="popup-content">
-      <div class="settings-section">
-        <label for="backend-url" style="font-size: 14px; font-weight: 600;">Backend API URL:</label>
-        <input type="text" id="backend-url" placeholder="http://localhost:8000" value=""
-          style="font-size: 14px; padding: 10px;" />
-        <button id="save-btn" class="primary-btn" style="font-size: 15px; padding: 12px;">
-          Save Settings
-        </button>
-      </div>
-
-      <div class="status-section">
-        <div id="status-indicator" class="status-indicator">
-          <span class="status-dot"></span>
-          <span class="status-text">Checking connection...</span>
+  <div class="ruai-root pop">
+    <header class="pop-head">
+      <div class="pop-brand">
+        <span class="pop-mark" id="brand-mark"></span>
+        <div>
+          <h1>RUAI</h1>
+          <p>Is this real?</p>
         </div>
       </div>
+    </header>
 
-      <!-- Dashboard Button -->
-      <div class="dashboard-section">
-        <button id="open-dashboard-btn" class="dashboard-btn">
-          📊 View Protection Dashboard
-        </button>
-      </div>
-
-      <div class="info-section">
-        <h3>🤖 Multi-Agent AI System</h3>
-        <ol style="font-size: 14px; line-height: 1.8;">
-          <li><strong>Real-Time Analysis:</strong> 6 specialized AI agents working together</li>
-          <li><strong>Deepfake Detection:</strong> Vision AI analyzes video frames</li>
-          <li><strong>Scam Protection:</strong> Detects financial fraud attempts</li>
-          <li><strong>Content Safety:</strong> Identifies misinformation</li>
-        </ol>
-
-        <h4 style="margin-top: 16px; margin-bottom: 8px; font-size: 15px; color: #667eea;">
-          🎯 What We Detect:
-        </h4>
-        <ul style="font-size: 13px; line-height: 1.8; color: #666;">
-          <li>AI-generated deepfake videos</li>
-          <li>Financial scams & phishing</li>
-          <li>Manipulated content</li>
-          <li>Misinformation campaigns</li>
-          <li>Social engineering attempts</li>
-        </ul>
-
-        <div
-          style="margin-top: 16px; padding: 12px; background: #e3f2fd; border-radius: 8px; border-left: 3px solid #2196f3;">
-          <strong style="color: #1565c0;">Powered by NVIDIA Nemotron</strong>
-          <p style="font-size: 12px; margin: 4px 0 0 0; color: #555;">
-            Using 4 specialized AI models for comprehensive analysis
-          </p>
+    <main class="pop-body">
+      <section class="pop-status" id="status" data-state="checking">
+        <span class="pop-status-dot"></span>
+        <div>
+          <div class="pop-status-title" id="status-title">Checking the connection…</div>
+          <div class="pop-status-note" id="status-note">One moment.</div>
         </div>
-      </div>
+      </section>
 
-      <div class="help-section">
-        <h4 style="font-size: 14px; margin-bottom: 8px;">Need Help?</h4>
-        <button
-          onclick="window.open('https://www.consumer.ftc.gov/articles/how-recognize-and-avoid-phishing-scams', '_blank')"
-          class="help-btn">
-          📚 Learn About Scams
-        </button>
-        <button onclick="window.open('https://www.ftc.gov/complaint', '_blank')" class="help-btn">
-          🚫 Report a Scam
-        </button>
-      </div>
-    </div>
+      <section class="pop-card">
+        <h2 class="pop-card-title">What RUAI is watching</h2>
+
+        <label class="pop-toggle">
+          <span>
+            <span class="pop-toggle-label">Videos</span>
+            <span class="pop-toggle-note">Adds a check button on YouTube and Facebook.</span>
+          </span>
+          <input type="checkbox" id="toggle-video" />
+          <span class="pop-switch" aria-hidden="true"></span>
+        </label>
+
+        <label class="pop-toggle">
+          <span>
+            <span class="pop-toggle-label">Messages</span>
+            <span class="pop-toggle-note">Warns you about scam messages as they arrive.</span>
+          </span>
+          <input type="checkbox" id="toggle-message" />
+          <span class="pop-switch" aria-hidden="true"></span>
+        </label>
+      </section>
+
+      <section class="pop-stats" id="stats" hidden>
+        <div class="pop-stat">
+          <span class="pop-stat-value" id="stat-checks">0</span>
+          <span class="pop-stat-label">Checks made</span>
+        </div>
+        <div class="pop-stat">
+          <span class="pop-stat-value" id="stat-warnings">0</span>
+          <span class="pop-stat-label">Warnings</span>
+        </div>
+      </section>
+
+      <button type="button" class="ruai-btn ruai-btn-primary pop-wide" id="open-dashboard">
+        See everything RUAI has checked
+      </button>
+
+      <details class="pop-advanced">
+        <summary>Settings</summary>
+        <label class="pop-field" for="backend-url">Address of the RUAI checker</label>
+        <input type="url" id="backend-url" spellcheck="false" placeholder="http://localhost:8000" />
+        <button type="button" class="ruai-btn ruai-btn-quiet pop-wide" id="save-url">Save</button>
+        <p class="pop-hint" id="save-hint" role="status"></p>
+      </details>
+    </main>
+
+    <footer class="pop-foot">
+      RUAI never sends what you look at anywhere except your own checker.
+    </footer>
   </div>
 
+  <script src="../shared/config.js"></script>
+  <script src="../shared/api.js"></script>
   <script src="popup.js"></script>
 </body>
 

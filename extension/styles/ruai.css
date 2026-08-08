@@ -1,0 +1,706 @@
+/* ==========================================================================
+   RUAI component styles.
+
+   These are injected into pages RUAI does not control — YouTube and Facebook
+   both ship aggressive global CSS — so every rule is scoped under .ruai-root
+   and every property that matters is set explicitly rather than inherited.
+
+   Depends on styles/tokens.css, which is generated from brand/tokens.css.
+   ========================================================================== */
+
+/* --- Reset ------------------------------------------------------------- */
+
+.ruai-root,
+.ruai-root *,
+.ruai-root *::before,
+.ruai-root *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-family: var(--ruai-font);
+  font-size: 100%;
+  line-height: var(--ruai-leading);
+  color: var(--ruai-ink);
+  letter-spacing: normal;
+  text-transform: none;
+  text-align: left;
+  background: none;
+  list-style: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+.ruai-root {
+  position: fixed;
+  z-index: var(--ruai-z-overlay);
+  font-size: var(--ruai-text-base);
+}
+
+.ruai-root button {
+  cursor: pointer;
+  min-height: var(--ruai-target);
+}
+
+/* Visible focus, always. Keyboard users and screen magnifiers depend on it. */
+.ruai-root :focus-visible {
+  outline: 3px solid var(--ruai-brand);
+  outline-offset: 2px;
+  border-radius: var(--ruai-radius-sm);
+}
+
+.ruai-visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* --- The launcher ------------------------------------------------------
+   A single, always-findable button. It does not hide on hover-out, it does
+   not shrink to an icon after a delay, and it does not move. */
+
+.ruai-launcher {
+  top: 96px;
+  right: 24px;
+  animation: ruai-rise var(--ruai-slow) var(--ruai-ease-out) both;
+}
+
+.ruai-launcher-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ruai-3);
+  padding: 12px 20px 12px 14px;
+  border-radius: var(--ruai-radius-pill);
+  background: var(--ruai-surface);
+  box-shadow: var(--ruai-shadow-lg);
+  font-size: var(--ruai-text-base);
+  font-weight: 650;
+  color: var(--ruai-ink);
+  transition: transform var(--ruai-fast) var(--ruai-ease),
+    box-shadow var(--ruai-fast) var(--ruai-ease);
+}
+
+.ruai-launcher-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--ruai-shadow-xl);
+}
+
+.ruai-launcher-btn:active {
+  transform: translateY(0) scale(0.985);
+}
+
+.ruai-launcher-btn[data-state="working"] {
+  cursor: progress;
+}
+
+.ruai-mark {
+  display: block;
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--ruai-gradient);
+}
+
+.ruai-mark svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* The mark breathes while a check is running — the only motion on screen,
+   so it reads as "working" without a spinner shouting for attention. */
+.ruai-launcher-btn[data-state="working"] .ruai-mark {
+  animation: ruai-breathe 1.6s var(--ruai-ease) infinite;
+}
+
+/* --- Result pill -------------------------------------------------------
+   What the launcher becomes once there is an answer. */
+
+.ruai-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ruai-2);
+  padding: 6px 14px;
+  border-radius: var(--ruai-radius-pill);
+  font-size: var(--ruai-text-sm);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.ruai-pill::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: currentColor;
+  flex: 0 0 auto;
+}
+
+.ruai-pill[data-risk="safe"] {
+  background: var(--ruai-safe-soft);
+  color: var(--ruai-safe);
+}
+
+.ruai-pill[data-risk="caution"] {
+  background: var(--ruai-caution-soft);
+  color: var(--ruai-caution);
+}
+
+.ruai-pill[data-risk="danger"] {
+  background: var(--ruai-danger-soft);
+  color: var(--ruai-danger);
+}
+
+/* --- The sheet ---------------------------------------------------------- */
+
+.ruai-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: var(--ruai-z-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--ruai-6);
+  background: rgba(11, 16, 32, 0.42);
+  backdrop-filter: blur(3px);
+  animation: ruai-fade var(--ruai-base) var(--ruai-ease) both;
+}
+
+.ruai-sheet {
+  width: min(560px, 100%);
+  max-height: min(86vh, 860px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--ruai-surface);
+  border-radius: var(--ruai-radius-xl);
+  box-shadow: var(--ruai-shadow-xl);
+  animation: ruai-sheet-in var(--ruai-slow) var(--ruai-ease-out) both;
+}
+
+.ruai-sheet-scroll {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* --- Verdict header ----------------------------------------------------- */
+
+.ruai-verdict-head {
+  position: relative;
+  padding: var(--ruai-6) var(--ruai-6) var(--ruai-5);
+  border-bottom: 1px solid var(--ruai-line);
+}
+
+.ruai-verdict-head[data-risk="safe"] {
+  background: var(--ruai-safe-soft);
+}
+
+.ruai-verdict-head[data-risk="caution"] {
+  background: var(--ruai-caution-soft);
+}
+
+.ruai-verdict-head[data-risk="danger"] {
+  background: var(--ruai-danger-soft);
+}
+
+/* Risk is never colour alone: there is a band, an icon, and a word. */
+.ruai-verdict-head::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 5px;
+}
+
+.ruai-verdict-head[data-risk="safe"]::before {
+  background: var(--ruai-safe);
+}
+
+.ruai-verdict-head[data-risk="caution"]::before {
+  background: var(--ruai-caution);
+}
+
+.ruai-verdict-head[data-risk="danger"]::before {
+  background: var(--ruai-danger);
+}
+
+.ruai-verdict-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ruai-4);
+  margin-bottom: var(--ruai-4);
+}
+
+.ruai-verdict-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--ruai-surface);
+  box-shadow: var(--ruai-shadow-sm);
+  animation: ruai-pop var(--ruai-slow) var(--ruai-ease-out) both;
+}
+
+.ruai-verdict-icon svg {
+  width: 28px;
+  height: 28px;
+  display: block;
+}
+
+.ruai-verdict-head[data-risk="safe"] .ruai-verdict-icon svg {
+  color: var(--ruai-safe);
+}
+
+.ruai-verdict-head[data-risk="caution"] .ruai-verdict-icon svg {
+  color: var(--ruai-caution);
+}
+
+.ruai-verdict-head[data-risk="danger"] .ruai-verdict-icon svg {
+  color: var(--ruai-danger);
+}
+
+.ruai-headline {
+  font-size: var(--ruai-text-2xl);
+  font-weight: 750;
+  line-height: var(--ruai-leading-tight);
+  letter-spacing: -0.02em;
+  margin-bottom: var(--ruai-2);
+}
+
+.ruai-summary {
+  font-size: var(--ruai-text-base);
+  line-height: var(--ruai-leading);
+  color: var(--ruai-ink-2);
+}
+
+.ruai-source {
+  display: block;
+  margin-top: var(--ruai-3);
+  font-size: var(--ruai-text-sm);
+  color: var(--ruai-ink-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* --- Certainty meter ---------------------------------------------------- */
+
+.ruai-meter {
+  margin-top: var(--ruai-5);
+}
+
+.ruai-meter-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: var(--ruai-2);
+  font-size: var(--ruai-text-sm);
+  font-weight: 600;
+  color: var(--ruai-ink-2);
+}
+
+.ruai-meter-track {
+  height: 10px;
+  border-radius: var(--ruai-radius-pill);
+  background: rgba(15, 21, 36, 0.09);
+  overflow: hidden;
+}
+
+.ruai-meter-fill {
+  height: 100%;
+  width: 0;
+  border-radius: inherit;
+  transition: width var(--ruai-slow) var(--ruai-ease-out);
+}
+
+.ruai-verdict-head[data-risk="safe"] .ruai-meter-fill {
+  background: var(--ruai-safe);
+}
+
+.ruai-verdict-head[data-risk="caution"] .ruai-meter-fill {
+  background: var(--ruai-caution);
+}
+
+.ruai-verdict-head[data-risk="danger"] .ruai-meter-fill {
+  background: var(--ruai-danger);
+}
+
+/* --- Body sections ------------------------------------------------------ */
+
+.ruai-section {
+  padding: var(--ruai-5) var(--ruai-6);
+  border-bottom: 1px solid var(--ruai-line);
+}
+
+.ruai-section:last-child {
+  border-bottom: 0;
+}
+
+.ruai-section-title {
+  font-size: var(--ruai-text-sm);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ruai-ink-3);
+  margin-bottom: var(--ruai-4);
+}
+
+/* Staggered entrance: the eye lands on the headline, then the evidence. */
+.ruai-stagger > * {
+  animation: ruai-slide-up var(--ruai-base) var(--ruai-ease-out) both;
+}
+
+.ruai-stagger > *:nth-child(1) { animation-delay: 60ms; }
+.ruai-stagger > *:nth-child(2) { animation-delay: 110ms; }
+.ruai-stagger > *:nth-child(3) { animation-delay: 160ms; }
+.ruai-stagger > *:nth-child(4) { animation-delay: 210ms; }
+.ruai-stagger > *:nth-child(5) { animation-delay: 260ms; }
+.ruai-stagger > *:nth-child(n + 6) { animation-delay: 300ms; }
+
+/* --- Signals ------------------------------------------------------------ */
+
+.ruai-signal {
+  display: flex;
+  gap: var(--ruai-3);
+  padding: var(--ruai-3) 0;
+}
+
+.ruai-signal + .ruai-signal {
+  border-top: 1px solid var(--ruai-line);
+}
+
+.ruai-signal-dot {
+  flex: 0 0 auto;
+  width: 10px;
+  height: 10px;
+  margin-top: 7px;
+  border-radius: 50%;
+}
+
+.ruai-signal[data-severity="high"] .ruai-signal-dot {
+  background: var(--ruai-danger);
+}
+
+.ruai-signal[data-severity="medium"] .ruai-signal-dot {
+  background: var(--ruai-caution);
+}
+
+.ruai-signal[data-severity="low"] .ruai-signal-dot {
+  background: var(--ruai-ink-3);
+}
+
+.ruai-signal-label {
+  font-size: var(--ruai-text-base);
+  font-weight: 650;
+  margin-bottom: 2px;
+}
+
+.ruai-signal-detail {
+  font-size: var(--ruai-text-base);
+  color: var(--ruai-ink-2);
+}
+
+/* --- Advice ------------------------------------------------------------- */
+
+.ruai-advice {
+  display: flex;
+  gap: var(--ruai-3);
+  align-items: flex-start;
+  padding: var(--ruai-3) 0;
+  font-size: var(--ruai-text-base);
+}
+
+.ruai-advice-check {
+  flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
+  margin-top: 1px;
+  color: var(--ruai-brand);
+}
+
+.ruai-advice-check svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* --- Reasoning ---------------------------------------------------------- */
+
+.ruai-details {
+  padding: var(--ruai-4) var(--ruai-6);
+  background: var(--ruai-surface-2);
+}
+
+.ruai-details summary {
+  cursor: pointer;
+  font-size: var(--ruai-text-sm);
+  font-weight: 650;
+  color: var(--ruai-ink-3);
+  padding: var(--ruai-2) 0;
+  list-style: none;
+}
+
+.ruai-details summary::-webkit-details-marker {
+  display: none;
+}
+
+.ruai-details summary::after {
+  content: " ›";
+  display: inline-block;
+  transition: transform var(--ruai-fast) var(--ruai-ease);
+}
+
+.ruai-details[open] summary::after {
+  transform: rotate(90deg);
+}
+
+.ruai-details p {
+  margin-top: var(--ruai-2);
+  font-size: var(--ruai-text-sm);
+  line-height: var(--ruai-leading);
+  color: var(--ruai-ink-2);
+  white-space: pre-wrap;
+}
+
+/* --- Notice ------------------------------------------------------------- */
+
+.ruai-notice {
+  display: flex;
+  gap: var(--ruai-3);
+  margin: var(--ruai-4) var(--ruai-6) 0;
+  padding: var(--ruai-3) var(--ruai-4);
+  border-radius: var(--ruai-radius);
+  background: var(--ruai-caution-soft);
+  border: 1px solid var(--ruai-caution-line);
+  font-size: var(--ruai-text-sm);
+  color: var(--ruai-caution);
+}
+
+/* --- Footer ------------------------------------------------------------- */
+
+.ruai-sheet-foot {
+  display: flex;
+  gap: var(--ruai-3);
+  padding: var(--ruai-4) var(--ruai-6);
+  border-top: 1px solid var(--ruai-line);
+  background: var(--ruai-surface);
+}
+
+/* --- Buttons ------------------------------------------------------------ */
+
+.ruai-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ruai-2);
+  min-height: var(--ruai-target);
+  padding: 0 var(--ruai-5);
+  border-radius: var(--ruai-radius);
+  font-size: var(--ruai-text-base);
+  font-weight: 650;
+  transition: transform var(--ruai-fast) var(--ruai-ease),
+    background-color var(--ruai-fast) var(--ruai-ease),
+    box-shadow var(--ruai-fast) var(--ruai-ease);
+}
+
+.ruai-btn:active {
+  transform: scale(0.985);
+}
+
+.ruai-btn-primary {
+  flex: 1;
+  color: #fff;
+  background: var(--ruai-brand);
+  box-shadow: 0 6px 16px rgba(59, 91, 245, 0.25);
+}
+
+.ruai-btn-primary:hover {
+  background: var(--ruai-brand-strong);
+}
+
+.ruai-btn-quiet {
+  color: var(--ruai-ink-2);
+  background: var(--ruai-canvas);
+}
+
+.ruai-btn-quiet:hover {
+  background: var(--ruai-line);
+}
+
+.ruai-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* --- Working state ------------------------------------------------------ */
+
+.ruai-working {
+  padding: var(--ruai-10) var(--ruai-6);
+  text-align: center;
+}
+
+.ruai-working-mark {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto var(--ruai-5);
+  border-radius: 16px;
+  background: var(--ruai-gradient);
+  animation: ruai-breathe 1.6s var(--ruai-ease) infinite;
+}
+
+.ruai-working-title {
+  font-size: var(--ruai-text-xl);
+  font-weight: 700;
+  margin-bottom: var(--ruai-2);
+}
+
+.ruai-working-note {
+  font-size: var(--ruai-text-base);
+  color: var(--ruai-ink-3);
+  margin-bottom: var(--ruai-5);
+}
+
+.ruai-scan {
+  position: relative;
+  height: 6px;
+  max-width: 260px;
+  margin: 0 auto;
+  border-radius: var(--ruai-radius-pill);
+  background: var(--ruai-canvas);
+  overflow: hidden;
+}
+
+.ruai-scan::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--ruai-gradient);
+  transform: translateX(-100%);
+  animation: ruai-scan 1.4s var(--ruai-ease) infinite;
+}
+
+/* --- Inline message warning --------------------------------------------
+   Injected next to a suspicious message in a chat thread. Deliberately calm:
+   a frightened reader makes worse decisions, which is the scammer's plan. */
+
+.ruai-inline {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ruai-3);
+  margin: var(--ruai-3) 0;
+  padding: var(--ruai-4);
+  border-radius: var(--ruai-radius);
+  border: 1px solid var(--ruai-caution-line);
+  background: var(--ruai-caution-soft);
+  box-shadow: var(--ruai-shadow-sm);
+  animation: ruai-slide-up var(--ruai-base) var(--ruai-ease-out) both;
+}
+
+.ruai-inline[data-risk="danger"] {
+  border-color: var(--ruai-danger-line);
+  background: var(--ruai-danger-soft);
+}
+
+.ruai-inline-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.ruai-inline-title {
+  font-size: var(--ruai-text-lg);
+  font-weight: 700;
+  margin-bottom: var(--ruai-1);
+  color: var(--ruai-caution);
+}
+
+.ruai-inline[data-risk="danger"] .ruai-inline-title {
+  color: var(--ruai-danger);
+}
+
+.ruai-inline-text {
+  font-size: var(--ruai-text-sm);
+  color: var(--ruai-ink-2);
+  margin-bottom: var(--ruai-3);
+}
+
+.ruai-inline-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ruai-2);
+}
+
+.ruai-inline .ruai-btn {
+  min-height: 40px;
+  padding: 0 var(--ruai-4);
+  font-size: var(--ruai-text-sm);
+}
+
+/* Hidden message content sits behind this until the reader chooses to look. */
+.ruai-hidden-content {
+  filter: blur(7px);
+  user-select: none;
+  pointer-events: none;
+  transition: filter var(--ruai-base) var(--ruai-ease);
+}
+
+.ruai-revealed .ruai-hidden-content {
+  filter: none;
+  user-select: auto;
+  pointer-events: auto;
+}
+
+/* --- Motion ------------------------------------------------------------- */
+
+@keyframes ruai-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes ruai-rise {
+  from { opacity: 0; transform: translateY(10px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes ruai-sheet-in {
+  from { opacity: 0; transform: translateY(20px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes ruai-slide-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes ruai-pop {
+  0% { opacity: 0; transform: scale(0.6); }
+  70% { transform: scale(1.06); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes ruai-breathe {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.08); opacity: 0.82; }
+}
+
+@keyframes ruai-scan {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ruai-root *,
+  .ruai-root *::before,
+  .ruai-root *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
+}

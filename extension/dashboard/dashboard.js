@@ -1,374 +1,196 @@
 /**
- * Senior Protection Dashboard
- * Displays alerts, metrics, and protection status
+ * Dashboard: one timeline of everything RUAI has checked.
+ *
+ * Reads from the backend's activity log rather than extension storage, so a
+ * check made in any tab, on any of the three kinds of content, lands in the
+ * same list.
  */
 
 (function () {
-    "use strict";
+  "use strict";
 
-    let metrics = {
-        videos_protected: 0,
-        scams_detected: 0,
-        messages_analyzed: 0,
-        active_alerts: 0,
-    };
+  const RUAI = window.RUAI;
+  const el = RUAI.el;
 
-    /**
-     * Initialize dashboard
-     */
-    function init() {
-        loadMetrics();
-        loadAlerts();
-        setupEventListeners();
+  const KIND_NOUN = { video: "Video", message: "Message", article: "Story" };
 
-        // Auto-refresh every 30 seconds
-        setInterval(() => {
-            loadMetrics();
-            loadAlerts();
-        }, 30000);
+  const dom = {
+    stats: document.getElementById("stats"),
+    timeline: document.getElementById("timeline"),
+    lastChecked: document.getElementById("last-checked"),
+    refresh: document.getElementById("refresh"),
+    clear: document.getElementById("clear"),
+  };
+
+  let activeKind = "";
+
+  // --- Time ---------------------------------------------------------------
+
+  function timeAgo(isoString) {
+    const then = new Date(isoString);
+    if (Number.isNaN(then.getTime())) return "";
+
+    const seconds = Math.max(0, (Date.now() - then.getTime()) / 1000);
+    if (seconds < 60) return "Just now";
+
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes} min ago`;
+
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours} hour${hours === 1 ? "" : "s"} ago`;
+
+    const days = Math.floor(hours / 24);
+    if (days < 7) return `${days} day${days === 1 ? "" : "s"} ago`;
+
+    return then.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  }
+
+  // --- Rendering ----------------------------------------------------------
+
+  function statCard(value, label, tone) {
+    return el("div", { class: "dash-stat", "data-tone": tone || "" }, [
+      el("span", { class: "dash-stat-value", text: String(value) }),
+      el("span", { class: "dash-stat-label", text: label }),
+    ]);
+  }
+
+  function renderStats(summary) {
+    const warnings = (summary.by_risk?.caution ?? 0) + (summary.by_risk?.danger ?? 0);
+
+    dom.stats.replaceChildren(
+      statCard(summary.total_checks ?? 0, "Checks made"),
+      statCard(summary.by_kind?.video ?? 0, "Videos"),
+      statCard(summary.by_kind?.message ?? 0, "Messages"),
+      statCard(warnings, "Warnings raised", warnings > 0 ? "warning" : "")
+    );
+
+    dom.lastChecked.textContent = summary.last_checked_at
+      ? `Last check ${timeAgo(summary.last_checked_at).toLowerCase()}.`
+      : "Everything RUAI has looked at on this computer.";
+  }
+
+  function entryRow(entry) {
+    const meta = [KIND_NOUN[entry.kind] || "Check", entry.source]
+      .filter(Boolean)
+      .join(" · ");
+
+    return el(
+      "button",
+      {
+        type: "button",
+        class: "dash-entry",
+        "data-risk": entry.risk,
+        on: {
+          click: () =>
+            RUAI.view.showSheet(RUAI.view.verdictCard(entry), { label: "Check result" }),
+        },
+      },
+      [
+        el("span", {
+          class: "dash-entry-icon",
+          html: RUAI.ICONS[entry.risk] || RUAI.ICONS.caution,
+        }),
+        el("span", { class: "dash-entry-main" }, [
+          el("span", { class: "dash-entry-title", text: entry.headline }),
+          el("span", { class: "dash-entry-meta", text: meta }),
+        ]),
+        el("span", { class: "dash-entry-when", text: timeAgo(entry.checked_at) }),
+      ]
+    );
+  }
+
+  function renderEmpty(message, note) {
+    dom.timeline.replaceChildren(
+      el("div", { class: "dash-empty" }, [
+        el("div", { class: "dash-empty-mark", html: RUAI.ICONS.check }),
+        el("div", { class: "dash-empty-title", text: message }),
+        el("div", { class: "dash-empty-note", text: note }),
+      ])
+    );
+  }
+
+  function renderLoading() {
+    dom.timeline.replaceChildren(
+      ...Array.from({ length: 3 }, () => el("div", { class: "dash-skeleton" }))
+    );
+  }
+
+  function renderTimeline(entries) {
+    const filtered = activeKind
+      ? entries.filter((entry) => entry.kind === activeKind)
+      : entries;
+
+    if (!filtered.length) {
+      renderEmpty(
+        entries.length ? "Nothing of this kind yet" : "Nothing checked yet",
+        entries.length
+          ? "Try another filter, or check something new."
+          : "Open a video or a message and RUAI will start keeping track here."
+      );
+      return;
     }
 
-    /**
-     * Load metrics from storage
-     */
-    function loadMetrics() {
-        chrome.storage.local.get(["metrics", "alerts"], (result) => {
-            if (result.metrics) {
-                metrics = result.metrics;
-            }
+    dom.timeline.replaceChildren(...filtered.map(entryRow));
+  }
 
-            // Count active high/critical alerts
-            const alerts = result.alerts || [];
-            metrics.active_alerts = alerts.filter(
-                (a) => a.risk_level === "CRITICAL" || a.risk_level === "HIGH"
-            ).length;
+  // --- Loading ------------------------------------------------------------
 
-            updateMetricsUI();
-        });
+  async function load({ showLoading = true } = {}) {
+    if (showLoading) renderLoading();
+
+    try {
+      const [summary, entries] = await Promise.all([
+        RUAI.api.activitySummary(),
+        RUAI.api.recentActivity(50),
+      ]);
+      renderStats(summary);
+      renderTimeline(entries);
+    } catch (error) {
+      dom.stats.replaceChildren();
+      renderEmpty(
+        "RUAI is not connected",
+        error?.userMessage || "The checker could not be reached."
+      );
     }
+  }
 
-    /**
-     * Update metrics UI
-     */
-    function updateMetricsUI() {
-        document.getElementById("videos-protected").textContent = metrics.videos_protected || 0;
-        document.getElementById("scams-detected").textContent = metrics.scams_detected || 0;
-        document.getElementById("messages-analyzed").textContent = metrics.messages_analyzed || 0;
-        document.getElementById("active-alerts").textContent = metrics.active_alerts || 0;
+  // --- Wiring -------------------------------------------------------------
 
-        // Update last scan time
-        const lastScan = new Date().toLocaleTimeString();
-        document.getElementById("last-scan").textContent = lastScan;
-    }
+  function init() {
+    document.getElementById("brand-mark").innerHTML = RUAI.ICONS.mark;
 
-    /**
-     * Load alerts from storage
-     */
-    function loadAlerts() {
-        chrome.storage.local.get(["alerts"], (result) => {
-            const alerts = result.alerts || [];
-            displayAlerts(alerts);
-        });
-    }
+    dom.refresh.addEventListener("click", () => load());
 
-    /**
-     * Display alerts in the UI
-     */
-    function displayAlerts(alerts) {
-        const container = document.getElementById("alerts-container");
+    dom.clear.addEventListener("click", async () => {
+      const confirmed = window.confirm(
+        "Clear everything RUAI has checked on this computer? This cannot be undone."
+      );
+      if (!confirmed) return;
 
-        if (alerts.length === 0) {
-            container.innerHTML = `
-        <div class="empty-state">
-          <div class="empty-icon">✨</div>
-          <div class="empty-text">No alerts yet - you're protected!</div>
-        </div>
-      `;
-            return;
-        }
+      try {
+        await RUAI.api.clearActivity();
+        await chrome.storage.local.set({ alertCount: 0 });
+        chrome.runtime.sendMessage({ type: "ruai:alerts-cleared" });
+        load();
+      } catch (error) {
+        window.alert(error?.userMessage || "The history could not be cleared.");
+      }
+    });
 
-        container.innerHTML = alerts
-            .map((alert) => createAlertCard(alert))
-            .join("");
+    document.querySelectorAll(".dash-filter").forEach((button) => {
+      button.addEventListener("click", () => {
+        document
+          .querySelectorAll(".dash-filter")
+          .forEach((other) => other.classList.toggle("is-active", other === button));
+        activeKind = button.dataset.kind;
+        load({ showLoading: false });
+      });
+    });
 
-        // Add event listeners to action buttons
-        container.querySelectorAll(".alert-action-btn").forEach((btn) => {
-            btn.addEventListener("click", (e) => {
-                const action = e.target.dataset.action;
-                const alertId = e.target.dataset.alertId;
-                handleAlertAction(action, alertId);
-            });
-        });
-    }
+    load();
+    // Quiet background refresh so an open tab stays current.
+    setInterval(() => load({ showLoading: false }), 30000);
+  }
 
-    /**
-     * Create alert card HTML
-     */
-    function createAlertCard(alert) {
-        const riskClass = alert.risk_level.toLowerCase();
-        const riskEmoji =
-            alert.risk_level === "CRITICAL"
-                ? "🚨"
-                : alert.risk_level === "HIGH"
-                    ? "⚠️"
-                    : alert.risk_level === "MEDIUM"
-                        ? "⚡"
-                        : "ℹ️";
-
-        const timeAgo = getTimeAgo(alert.timestamp);
-
-        return `
-      <div class="alert-item ${riskClass}" data-alert-id="${alert.id}">
-        <div class="alert-header">
-          <div class="alert-title">
-            <span>${riskEmoji}</span>
-            <span>${alert.type === "message" ? "Suspicious Message" : "Suspicious Video"}</span>
-            <span class="alert-badge">${alert.risk_level}</span>
-          </div>
-          <div class="alert-time">${timeAgo}</div>
-        </div>
-
-        ${alert.sender ? `
-          <div class="alert-sender">
-            <strong>From:</strong> ${alert.sender}
-            <span class="alert-platform">${alert.platform}</span>
-          </div>
-        ` : ""}
-
-        <div class="alert-content">
-          "${alert.message_preview || alert.video_title || "Content blocked for your protection"}"
-        </div>
-
-        ${alert.scam_types && alert.scam_types.length > 0 ? `
-          <div style="margin-bottom: 12px; font-size: 13px;">
-            <strong style="color: #ff5252;">Detected Scam Type:</strong> 
-            ${alert.scam_types.join(", ")}
-          </div>
-        ` : ""}
-
-        <div class="alert-actions">
-          <button class="alert-action-btn" data-action="details" data-alert-id="${alert.id}">
-            📋 View Details
-          </button>
-          <button class="alert-action-btn" data-action="dismiss" data-alert-id="${alert.id}">
-            ✓ Dismiss
-          </button>
-          <button class="alert-action-btn" data-action="report" data-alert-id="${alert.id}">
-            🚫 Report Scam
-          </button>
-        </div>
-      </div>
-    `;
-    }
-
-    /**
-     * Get time ago string
-     */
-    function getTimeAgo(timestamp) {
-        const now = new Date();
-        const alertTime = new Date(timestamp);
-        const diffMs = now - alertTime;
-        const diffMins = Math.floor(diffMs / 60000);
-
-        if (diffMins < 1) return "Just now";
-        if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? "s" : ""} ago`;
-
-        const diffHours = Math.floor(diffMins / 60);
-        if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? "s" : ""} ago`;
-
-        const diffDays = Math.floor(diffHours / 24);
-        return `${diffDays} day${diffDays > 1 ? "s" : ""} ago`;
-    }
-
-    /**
-     * Handle alert actions
-     */
-    function handleAlertAction(action, alertId) {
-        switch (action) {
-            case "details":
-                showAlertDetails(alertId);
-                break;
-            case "dismiss":
-                dismissAlert(alertId);
-                break;
-            case "report":
-                reportScam(alertId);
-                break;
-        }
-    }
-
-    /**
-     * Show detailed alert information
-     */
-    function showAlertDetails(alertId) {
-        chrome.storage.local.get(["alerts"], (result) => {
-            const alerts = result.alerts || [];
-            const alert = alerts.find((a) => a.id == alertId);
-
-            if (!alert) return;
-
-            const modal = document.createElement("div");
-            modal.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.7);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 10000;
-        padding: 20px;
-      `;
-
-            modal.innerHTML = `
-        <div style="
-          background: white;
-          border-radius: 16px;
-          padding: 24px;
-          max-width: 600px;
-          max-height: 80vh;
-          overflow-y: auto;
-        ">
-          <h2 style="margin-bottom: 16px; color: #ff5252;">
-            ${alert.type === "message" ? "🚨 Scam Message Details" : "🚨 Suspicious Video Details"}
-          </h2>
-
-          <div style="background: #fff3f3; padding: 16px; border-radius: 12px; margin-bottom: 16px;">
-            <strong>Risk Level:</strong> ${alert.risk_level}<br>
-            <strong>Confidence:</strong> ${(alert.scam_risk_score * 100).toFixed(0)}%<br>
-            ${alert.sender ? `<strong>Sender:</strong> ${alert.sender}<br>` : ""}
-            <strong>Platform:</strong> ${alert.platform}<br>
-            <strong>Time:</strong> ${new Date(alert.timestamp).toLocaleString()}
-          </div>
-
-          ${alert.scam_types && alert.scam_types.length > 0 ? `
-            <div style="margin-bottom: 16px;">
-              <strong>Scam Type(s):</strong><br>
-              ${alert.scam_types.map(t => `<span style="display: inline-block; background: #ffebee; padding: 6px 12px; border-radius: 6px; margin: 4px;">${t}</span>`).join("")}
-            </div>
-          ` : ""}
-
-          <div style="margin-bottom: 16px;">
-            <strong>Content:</strong>
-            <div style="background: #f5f5f5; padding: 12px; border-radius: 8px; margin-top: 8px;">
-              ${alert.message_preview || alert.video_title || "Content hidden for protection"}
-            </div>
-          </div>
-
-          <div style="background: #e8f5e9; padding: 16px; border-radius: 12px; margin-bottom: 16px;">
-            <strong style="color: #2e7d32;">✅ What You Should Do:</strong>
-            <ul style="margin-top: 8px; padding-left: 20px;">
-              <li>Do NOT respond to this message</li>
-              <li>Do NOT send money or personal information</li>
-              <li>Verify independently by calling official numbers</li>
-              <li>Show this to a family member if unsure</li>
-              <li>Report to the platform and authorities</li>
-            </ul>
-          </div>
-
-          <div style="display: flex; gap: 12px; margin-top: 20px;">
-            <button onclick="this.closest('div[style*=fixed]').remove()" style="
-              flex: 1;
-              background: #4caf50;
-              color: white;
-              border: none;
-              padding: 12px;
-              border-radius: 8px;
-              font-weight: 600;
-              cursor: pointer;
-            ">
-              Got It
-            </button>
-            <button onclick="window.open('https://www.consumer.ftc.gov/articles/how-recognize-and-avoid-phishing-scams', '_blank')" style="
-              flex: 1;
-              background: #2196f3;
-              color: white;
-              border: none;
-              padding: 12px;
-              border-radius: 8px;
-              font-weight: 600;
-              cursor: pointer;
-            ">
-              Learn More
-            </button>
-          </div>
-        </div>
-      `;
-
-            document.body.appendChild(modal);
-
-            modal.addEventListener("click", (e) => {
-                if (e.target === modal) {
-                    modal.remove();
-                }
-            });
-        });
-    }
-
-    /**
-     * Dismiss an alert
-     */
-    function dismissAlert(alertId) {
-        chrome.storage.local.get(["alerts"], (result) => {
-            let alerts = result.alerts || [];
-            alerts = alerts.filter((a) => a.id != alertId);
-
-            chrome.storage.local.set({ alerts }, () => {
-                loadAlerts();
-                loadMetrics();
-            });
-        });
-    }
-
-    /**
-     * Report scam to authorities
-     */
-    function reportScam(alertId) {
-        if (confirm("This will open the FTC complaint form. Continue?")) {
-            window.open("https://www.ftc.gov/complaint", "_blank");
-            dismissAlert(alertId);
-        }
-    }
-
-    /**
-     * Setup event listeners
-     */
-    function setupEventListeners() {
-        // Refresh button
-        document.getElementById("refresh-btn").addEventListener("click", () => {
-            const icon = document.getElementById("refresh-icon");
-            icon.style.animation = "none";
-            setTimeout(() => {
-                icon.style.animation = "spin 0.5s linear";
-            }, 10);
-
-            loadMetrics();
-            loadAlerts();
-        });
-
-        // Settings button
-        document.getElementById("settings-btn").addEventListener("click", () => {
-            chrome.runtime.openOptionsPage();
-        });
-
-        // Clear all alerts
-        document.getElementById("clear-alerts-btn").addEventListener("click", () => {
-            if (confirm("Are you sure you want to clear all alerts?")) {
-                chrome.storage.local.set({ alerts: [] }, () => {
-                    loadAlerts();
-                    loadMetrics();
-                });
-            }
-        });
-    }
-
-    // Initialize when DOM is ready
-    if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", init);
-    } else {
-        init();
-    }
+  document.addEventListener("DOMContentLoaded", init);
 })();
-

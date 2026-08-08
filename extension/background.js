@@ -1,62 +1,43 @@
 /**
- * Background service worker for AI Video Fakeness Detector
- * Handles extension lifecycle and message passing
+ * Service worker.
+ *
+ * Deliberately small: it seeds defaults on install and keeps the toolbar
+ * badge in step with the number of warnings raised. Everything else happens
+ * in the content scripts, which already have the page they need.
  */
 
-// Default backend URL
-const DEFAULT_BACKEND_URL = "http://localhost:8000";
+const DEFAULTS = {
+  backendUrl: "http://localhost:8000",
+  videoChecksEnabled: true,
+  messageChecksEnabled: true,
+};
 
-// Initialize extension storage with default settings
-chrome.runtime.onInstalled.addListener(() => {
-  chrome.storage.local.get(["backendUrl"], (result) => {
-    if (!result.backendUrl) {
-      chrome.storage.local.set({ backendUrl: DEFAULT_BACKEND_URL });
-    }
-  });
+chrome.runtime.onInstalled.addListener(async () => {
+  const stored = await chrome.storage.local.get(Object.keys(DEFAULTS));
+  const missing = Object.fromEntries(
+    Object.entries(DEFAULTS).filter(([key]) => stored[key] === undefined)
+  );
+  if (Object.keys(missing).length) await chrome.storage.local.set(missing);
+  await refreshBadge();
 });
 
-// Listen for messages from content script
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.action === "getBackendUrl") {
-    chrome.storage.local.get(["backendUrl"], (result) => {
-      sendResponse({ backendUrl: result.backendUrl || DEFAULT_BACKEND_URL });
-    });
-    return true; // Keep channel open for async response
-  }
+chrome.runtime.onStartup?.addListener(refreshBadge);
 
-  if (request.action === "saveBackendUrl") {
-    chrome.storage.local.set({ backendUrl: request.url }, () => {
-      sendResponse({ success: true });
-    });
-    return true;
-  }
-
-  if (request.action === "healthCheck") {
-    checkBackendHealth(request.backendUrl)
-      .then((isHealthy) => {
-        sendResponse({ isHealthy });
-      })
-      .catch((error) => {
-        sendResponse({ isHealthy: false, error: error.message });
-      });
-    return true;
+chrome.runtime.onMessage.addListener((message) => {
+  if (message?.type === "ruai:alert") {
+    setBadge(message.count);
+  } else if (message?.type === "ruai:alerts-cleared") {
+    setBadge(0);
   }
 });
 
-/**
- * Check if backend API is healthy
- */
-async function checkBackendHealth(backendUrl) {
-  try {
-    const response = await fetch(`${backendUrl}/api/v1/health`);
-    if (response.ok) {
-      const data = await response.json();
-      return data.status === "healthy";
-    }
-    return false;
-  } catch (error) {
-    console.error("Backend health check failed:", error);
-    return false;
-  }
+async function refreshBadge() {
+  const { alertCount = 0 } = await chrome.storage.local.get("alertCount");
+  setBadge(alertCount);
 }
 
+function setBadge(count) {
+  const text = count > 0 ? (count > 99 ? "99+" : String(count)) : "";
+  chrome.action.setBadgeText({ text });
+  chrome.action.setBadgeBackgroundColor({ color: "#C1262D" });
+}

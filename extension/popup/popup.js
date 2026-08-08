@@ -1,145 +1,125 @@
 /**
- * Popup script for settings and configuration
+ * Popup: connection state, what RUAI is watching, and a way in to the
+ * dashboard. Settings are secondary and stay folded away.
  */
 
-const DEFAULT_BACKEND_URL = "http://localhost:8000";
+(function () {
+  "use strict";
 
-// Initialize popup
-document.addEventListener("DOMContentLoaded", async () => {
-  await loadSettings();
-  await checkConnection();
+  const RUAI = window.RUAI;
 
-  // Attach event listeners
-  document.getElementById("save-btn").addEventListener("click", saveSettings);
-  document.getElementById("backend-url").addEventListener("input", debounce(checkConnection, 500));
-});
-
-/**
- * Load settings from storage
- */
-async function loadSettings() {
-  return new Promise((resolve) => {
-    chrome.storage.local.get(["backendUrl"], (result) => {
-      const url = result.backendUrl || DEFAULT_BACKEND_URL;
-      document.getElementById("backend-url").value = url;
-      resolve(url);
-    });
-  });
-}
-
-/**
- * Save settings to storage
- */
-async function saveSettings() {
-  const url = document.getElementById("backend-url").value.trim();
-
-  if (!url) {
-    showStatus("error", "URL cannot be empty");
-    return;
-  }
-
-  try {
-    // Validate URL format
-    new URL(url);
-
-    await new Promise((resolve) => {
-      chrome.runtime.sendMessage(
-        { action: "saveBackendUrl", url },
-        (response) => {
-          if (response?.success) {
-            showStatus("success", "Settings saved!");
-            setTimeout(() => checkConnection(), 1000);
-            resolve();
-          } else {
-            showStatus("error", "Failed to save settings");
-            resolve();
-          }
-        }
-      );
-    });
-  } catch (error) {
-    showStatus("error", "Invalid URL format");
-  }
-}
-// Open dashboard button
-document.getElementById("open-dashboard-btn").addEventListener("click", () => {
-  chrome.tabs.create({
-    url: chrome.runtime.getURL("dashboard/dashboard.html")
-  });
-});
-/**
- * Check backend connection health
- */
-async function checkConnection() {
-  const url = document.getElementById("backend-url").value.trim() || DEFAULT_BACKEND_URL;
-
-  if (!url) {
-    showStatus("unknown", "Enter a backend URL");
-    return;
-  }
-
-  try {
-    // Validate URL format
-    new URL(url);
-
-    showStatus("checking", "Checking connection...");
-
-    const response = await fetch(`${url}/api/v1/health`);
-
-    if (response.ok) {
-      const data = await response.json();
-      if (data.status === "healthy") {
-        const nimStatus = data.nim_api_configured ? " (NIM API configured)" : " (NIM API not configured)";
-        showStatus("connected", `Connected${nimStatus}`);
-      } else {
-        showStatus("error", "Backend returned unhealthy status");
-      }
-    } else {
-      showStatus("error", `Connection failed: ${response.status}`);
-    }
-  } catch (error) {
-    if (error instanceof TypeError && error.message.includes("Invalid URL")) {
-      showStatus("error", "Invalid URL format");
-    } else {
-      showStatus("error", "Cannot connect to backend");
-    }
-  }
-}
-
-/**
- * Update status indicator
- */
-function showStatus(type, message) {
-  const indicator = document.getElementById("status-indicator");
-  const dot = indicator.querySelector(".status-dot");
-  const text = indicator.querySelector(".status-text");
-
-  // Remove all status classes
-  indicator.className = "status-indicator";
-
-  // Add current status class
-  indicator.classList.add(`status-${type}`);
-
-  // Update text
-  text.textContent = message;
-
-  // Update dot appearance
-  dot.className = "status-dot";
-  dot.classList.add(`status-dot-${type}`);
-}
-
-/**
- * Debounce function to limit API calls
- */
-function debounce(func, wait) {
-  let timeout;
-  return function executedFunction(...args) {
-    const later = () => {
-      clearTimeout(timeout);
-      func(...args);
-    };
-    clearTimeout(timeout);
-    timeout = setTimeout(later, wait);
+  const dom = {
+    status: document.getElementById("status"),
+    statusTitle: document.getElementById("status-title"),
+    statusNote: document.getElementById("status-note"),
+    video: document.getElementById("toggle-video"),
+    message: document.getElementById("toggle-message"),
+    stats: document.getElementById("stats"),
+    checks: document.getElementById("stat-checks"),
+    warnings: document.getElementById("stat-warnings"),
+    dashboard: document.getElementById("open-dashboard"),
+    url: document.getElementById("backend-url"),
+    save: document.getElementById("save-url"),
+    hint: document.getElementById("save-hint"),
   };
-}
 
+  function setStatus(state, title, note) {
+    dom.status.dataset.state = state;
+    dom.statusTitle.textContent = title;
+    dom.statusNote.textContent = note;
+  }
+
+  async function refreshStatus() {
+    setStatus("checking", "Checking the connection…", "One moment.");
+
+    try {
+      const health = await RUAI.api.health();
+      if (health.model_configured) {
+        setStatus("ready", "RUAI is ready", "Everything is working.");
+      } else {
+        setStatus(
+          "warning",
+          "Partly working",
+          "The checker is running but has no AI key, so only quick local checks will run."
+        );
+      }
+      await refreshStats();
+    } catch (error) {
+      setStatus(
+        "offline",
+        "RUAI is not connected",
+        error?.userMessage || "The checker could not be reached."
+      );
+      dom.stats.hidden = true;
+    }
+  }
+
+  async function refreshStats() {
+    try {
+      const summary = await RUAI.api.activitySummary();
+      dom.checks.textContent = summary.total_checks ?? 0;
+      dom.warnings.textContent =
+        (summary.by_risk?.caution ?? 0) + (summary.by_risk?.danger ?? 0);
+      dom.stats.hidden = false;
+    } catch {
+      dom.stats.hidden = true;
+    }
+  }
+
+  async function loadSettings() {
+    const settings = await RUAI.settings.get();
+    dom.video.checked = settings.videoChecksEnabled;
+    dom.message.checked = settings.messageChecksEnabled;
+    dom.url.value = settings.backendUrl;
+  }
+
+  function hint(text, state) {
+    dom.hint.textContent = text;
+    if (state) dom.hint.dataset.state = state;
+    else delete dom.hint.dataset.state;
+  }
+
+  async function saveUrl() {
+    const value = dom.url.value.trim().replace(/\/+$/, "");
+
+    try {
+      new URL(value);
+    } catch {
+      hint("That does not look like a web address.", "error");
+      return;
+    }
+
+    await RUAI.settings.set({ backendUrl: value });
+    hint("Saved.");
+    setTimeout(() => hint(""), 2500);
+    refreshStatus();
+  }
+
+  function init() {
+    document.getElementById("brand-mark").innerHTML = RUAI.ICONS.mark;
+
+    dom.video.addEventListener("change", () =>
+      RUAI.settings.set({ videoChecksEnabled: dom.video.checked })
+    );
+    dom.message.addEventListener("change", () =>
+      RUAI.settings.set({ messageChecksEnabled: dom.message.checked })
+    );
+
+    dom.dashboard.addEventListener("click", () => {
+      chrome.tabs.create({ url: chrome.runtime.getURL("dashboard/dashboard.html") });
+    });
+
+    dom.save.addEventListener("click", saveUrl);
+    dom.url.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") saveUrl();
+    });
+
+    // Opening the popup is an acknowledgement, so the badge resets.
+    chrome.storage.local.set({ alertCount: 0 });
+    chrome.runtime.sendMessage({ type: "ruai:alerts-cleared" });
+
+    loadSettings().then(refreshStatus);
+  }
+
+  document.addEventListener("DOMContentLoaded", init);
+})();
